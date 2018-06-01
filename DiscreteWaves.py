@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 N = 50  # number of waves in base set
 num_sum = 3  # maximum number of elements in sum of waves
 
+def eval_wave(x, amplitude, omega, offset=0, phase=0):
+    return amplitude * np.sin(omega*x + phase) + offset
+
 
 class DiscreteWaves(Env):
     """The main OpenAI Gym class. It encapsulates an environment with
@@ -45,22 +48,26 @@ class DiscreteWaves(Env):
     base_waves[0] = (0, 0)
     base_waves.sort()
 
-    base_wave_representations = np.array([[a*np.sin(omega*x)
+    base_wave_representations = np.array([[eval_wave(x, a, omega)
                                            for x in np.linspace(0, 5, 1000)]
                                           for a, omega in base_waves])
 
     def step(self, action):
-        """Run one timestep of the environment's dynamics. When end of
-        episode is reached, you are responsible for calling `reset()`
-        to reset this environment's state.
-        Accepts an action and returns a tuple (observation, reward, done, info).
-        Args:
-            action (object): an action provided by the environment
-        Returns:
-            observation (object): agent's observation of the current environment
-            reward (float) : amount of reward returned after previous action
-            done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+        """Select a wave for a slot. Action is a 2-tuple of a base wave index
+           and a slot. It returns the current observation, reward and if the
+           environment has completed.
+
+           Returns:
+                observation: dict with keys "target", "current", "waves" where
+                "target" is the wave to be created, "current" is the product of the
+                currently selected waves and "waves" is a collection of 
+                representations of the base wave
+           
+           Example: action=(5, 3)
+           Meaning: Select base_wave[5] for the slot with index 3.
+
+           Note: Slots can be deselected / emptied using (0,<slot_idx>) which
+           is guaranteed to be a wave with amplitude 0.
         """
         if not self.action_space.contains(action):
             raise Exception("Action %s is not in action space." % action)
@@ -82,12 +89,10 @@ class DiscreteWaves(Env):
         return observation, reward, done, None
 
     def reset(self):
-        """Resets the state of the environment and returns an initial observation.
-        Returns: observation (object): the initial observation of the
-            space.
+        """Choose a new target wave and reset the current state.
         """
-        current_target = np.random.randint(0, N+1, size=3, dtype=np.int64)
-        state = np.zeros(3)
+        self.current_target = np.random.randint(0, N+1, size=3, dtype=np.int64)
+        self.state = np.zeros(3, dtype=np.int64)
 
     def render(self, mode='human'):
         """Renders the environment.
