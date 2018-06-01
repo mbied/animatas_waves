@@ -1,0 +1,11 @@
+site_name: ANIMATAS Waves
+repo_url: https://github.com/usr-lab/animatas_waves
+site_description: The Documentation for the ANIMATAS Waves Task. ANIMATAS is a 
+                  H2020 funded project focusing on robotics, machine learning,
+                  AI and teaching children.
+site_author: Sebastian Wallkötter
+theme: readthedocs
+strict: True
+
+pages:
+  - 'Introduction': 'index.md'
