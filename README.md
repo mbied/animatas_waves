@@ -1,5 +1,7 @@
 # ANIMATAS Waves Scenario 1
 
+[![Documentation Status](https://readthedocs.org/projects/animatas-waves/badge/?version=latest)](https://animatas-waves.readthedocs.io/en/latest/?badge=latest)
+
 This is the first scenario in the waves task of the 
 [ANIMATAS](http://www.animatas.eu/) project. 
 The user is presented with a discrete set of waves as well as a target wave 
