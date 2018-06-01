@@ -95,6 +95,14 @@ class DiscreteWaves(Env):
         self.current_target = np.random.randint(0, self.base_wave_representations.shape[0], size=3, dtype=np.int64)
         self.state = np.zeros(3, dtype=np.int64)
 
+        observation = {
+            "target": np.sum(self.base_wave_representations[self.current_target, :], axis=0),
+            "current": np.sum(self.base_wave_representations[self.state, :], axis=0),
+            "waves": self.base_wave_representations
+        }
+
+        return observation
+
     def render(self, mode='human'):
         """Renders the environment.
         The set of supported modes varies per environment. (And some
