@@ -1,7 +1,7 @@
 import numpy as np
 from gym import Env
 from gym.spaces import Box, Tuple, Discrete, Dict
-import matplotlib.pyplot as plt
+
 
 def eval_wave(x, amplitude, omega, offset=0, phase=0):
     return amplitude * np.sin(omega*x + phase) + offset
