@@ -3,9 +3,6 @@ from gym import Env
 from gym.spaces import Box, Tuple, Discrete, Dict
 import matplotlib.pyplot as plt
 
-N = 50  # number of waves in base set
-num_sum = 3  # maximum number of elements in sum of waves
-
 def eval_wave(x, amplitude, omega, offset=0, phase=0):
     return amplitude * np.sin(omega*x + phase) + offset
 
@@ -35,22 +32,26 @@ class DiscreteWaves(Env):
     reward_range = (-1, 1)
     spec = None
 
-    # Set these in ALL subclasses
-    action_space = Tuple((Discrete(N+1), Discrete(num_sum)))
-    observation_space = Dict({
-                            "target": Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000)),
-                            "current": Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000)),
-                            "waves": Box(low=-1e2*np.ones((N+1, 1000)), high=1e2*np.ones((N+1, 1000)))})
+    def __init__(self, N=50, num_sum=3):
+        super().__init__()
 
-    state = np.zeros(3, dtype=np.int64)
-    current_target = np.zeros(3, dtype=np.int64)
-    base_waves = [(np.random.randint(100), np.random.randint(10)) for _ in range(N + 1)]
-    base_waves[0] = (0, 0)
-    base_waves.sort()
+        self.state = np.zeros(3, dtype=np.int64)
+        self.current_target = np.zeros(3, dtype=np.int64)
+        base_waves = [(np.random.randint(100), np.random.randint(10)) for _ in range(N + 1)]
+        base_waves[0] = (0, 0)
+        base_waves.sort()
 
-    base_wave_representations = np.array([[eval_wave(x, a, omega)
-                                           for x in np.linspace(0, 5, 1000)]
-                                          for a, omega in base_waves])
+        self.base_wave_representations = np.array([[eval_wave(x, a, omega)
+                                                    for x in np.linspace(0, 5, 1000)]
+                                                   for a, omega in base_waves])
+
+        # Set these in ALL subclasses
+        self.action_space = Tuple((Discrete(N+1), Discrete(num_sum)))
+        self.observation_space = Dict({
+                                "target": Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000)),
+                                "current": Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000)),
+                                "waves": Box(low=-1e2*np.ones((N+1, 1000)), high=1e2*np.ones((N+1, 1000)))})
+
 
     def step(self, action):
         """Select a wave for a slot. Action is a 2-tuple of a base wave index
@@ -91,7 +92,7 @@ class DiscreteWaves(Env):
     def reset(self):
         """Choose a new target wave and reset the current state.
         """
-        self.current_target = np.random.randint(0, N+1, size=3, dtype=np.int64)
+        self.current_target = np.random.randint(0, self.base_wave_representations.shape[0], size=3, dtype=np.int64)
         self.state = np.zeros(3, dtype=np.int64)
 
     def render(self, mode='human'):
