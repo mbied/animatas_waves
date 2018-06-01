@@ -2,7 +2,8 @@ import sys
 from DiscreteWaves import DiscreteWaves
 import numpy as np
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QMessageBox, QApplication,
-QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, QSizePolicy)
+                             QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, 
+                             QSizePolicy)
 from PyQt5.QtGui import QIcon, QFont, QDrag
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 
@@ -147,7 +148,7 @@ class DiscreteWavesGame(QWidget):
 
         base_wave_matrix = QGridLayout()
         base_waves = np.zeros(N+1)
-        for idx, wave in enumerate(backend.env.base_wave_representations):
+        for idx, wave in enumerate(backend.env.base_graph):
             pos = np.unravel_index(idx, (int(np.ceil((N+1)/4)), 4))
             widget = WavePlotCanvas(idx, self)
             base_wave_matrix.addWidget(widget, *pos)

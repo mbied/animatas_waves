@@ -33,25 +33,31 @@ class DiscreteWaves(Env):
     spec = None
 
     def __init__(self, N=50, num_sum=3):
+        """
+
+        """
+
         super().__init__()
 
         self.state = np.zeros(3, dtype=np.int64)
         self.current_target = np.zeros(3, dtype=np.int64)
-        base_waves = [(np.random.randint(100), np.random.randint(10)) for _ in range(N + 1)]
-        base_waves[0] = (0, 0)
-        base_waves.sort()
+        base = [(np.random.randint(100), np.random.randint(10)) 
+                for _ in range(N + 1)]
+        base[0] = (0, 0)
+        base.sort()
 
-        self.base_wave_representations = np.array([[eval_wave(x, a, omega)
-                                                    for x in np.linspace(0, 5, 1000)]
-                                                   for a, omega in base_waves])
+        self.base_graph = np.array([[eval_wave(x, a, omega)
+                                    for x in np.linspace(0, 5, 1000)]
+                                    for a, omega in base])
 
         # Set these in ALL subclasses
+        wave_space = Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000))
         self.action_space = Tuple((Discrete(N+1), Discrete(num_sum)))
         self.observation_space = Dict({
-                                "target": Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000)),
-                                "current": Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000)),
-                                "waves": Box(low=-1e2*np.ones((N+1, 1000)), high=1e2*np.ones((N+1, 1000)))})
-
+                                "target": wave_space,
+                                "current": wave_space,
+                                "waves": Box(low=-1e2*np.ones((N+1, 1000)),
+                                             high=1e2*np.ones((N+1, 1000)))})
 
     def step(self, action):
         """Select a wave for a slot. Action is a 2-tuple of a base wave index
