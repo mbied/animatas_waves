@@ -81,9 +81,9 @@ class DiscreteWaves(Env):
 
         self.state[action[1]] = action[0]
         observation = {
-            "target": np.sum(self.base_wave_representations[self.current_target, :], axis=0),
-            "current": np.sum(self.base_wave_representations[self.state, :], axis=0),
-            "waves": self.base_wave_representations
+            "target": np.sum(self.base_graph[self.current_target, :], axis=0),
+            "current": np.sum(self.base_graph[self.state, :], axis=0),
+            "waves": self.base_graph
         }
 
         if np.all(self.state == self.current_target):
@@ -98,13 +98,13 @@ class DiscreteWaves(Env):
     def reset(self):
         """Choose a new target wave and reset the current state.
         """
-        self.current_target = np.random.randint(0, self.base_wave_representations.shape[0], size=3, dtype=np.int64)
+        self.current_target = np.random.randint(0, self.base_graph.shape[0], size=3, dtype=np.int64)
         self.state = np.zeros(3, dtype=np.int64)
 
         observation = {
-            "target": np.sum(self.base_wave_representations[self.current_target, :], axis=0),
-            "current": np.sum(self.base_wave_representations[self.state, :], axis=0),
-            "waves": self.base_wave_representations
+            "target": np.sum(self.base_graph[self.current_target, :], axis=0),
+            "current": np.sum(self.base_graph[self.state, :], axis=0),
+            "waves": self.base_graph
         }
 
         return observation
