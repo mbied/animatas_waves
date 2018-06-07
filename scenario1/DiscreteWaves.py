@@ -41,7 +41,7 @@ class DiscreteWaves(Env):
 
         self.state = np.zeros(3, dtype=np.int64)
         self.current_target = np.zeros(3, dtype=np.int64)
-        base = np.hstack((np.ones((N+1,1)),np.random.randint(0,10,size=(N+1,1))))
+        base = np.hstack((np.ones((N+1,1)),np.random.randint(0,20,size=(N+1,1))/10))
         base[0,:] = 0
         idx = np.lexsort((base[:,0],base[:,1]))
         base = base[idx,:]
