@@ -4,7 +4,7 @@ from gym.spaces import Box, Tuple, Discrete, Dict
 
 
 def eval_wave(x, amplitude, omega, offset=0, phase=0):
-    return amplitude * np.sin(omega*x + phase) + offset
+    return amplitude * np.sin(2*np.pi*omega*x + phase) + offset
 
 
 class DiscreteWaves(Env):
@@ -41,10 +41,10 @@ class DiscreteWaves(Env):
 
         self.state = np.zeros(3, dtype=np.int64)
         self.current_target = np.zeros(3, dtype=np.int64)
-        base = [(np.random.randint(100), np.random.randint(10)) 
-                for _ in range(N + 1)]
-        base[0] = (0, 0)
-        base.sort()
+        base = np.hstack((np.ones((N+1,1)),np.random.randint(0,10,size=(N+1,1))))
+        base[0,:] = 0
+        idx = np.lexsort((base[:,0],base[:,1]))
+        base = base[idx,:]
 
         self.base_graph = np.array([[eval_wave(x, a, omega)
                                     for x in np.linspace(0, 5, 1000)]
