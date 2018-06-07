@@ -122,8 +122,8 @@ class ResultWave(FigureCanvas):
 
     def on_slot_changed(self, idx):
         self.axes.cla()
-        self.axes.plot(self.x, backend.observation["current"])
-        self.axes.plot(self.x, backend.observation["target"])
+        self.axes.plot(self.x, backend.observation["target"],"r")
+        self.axes.plot(self.x, backend.observation["current"],"b")
         self.draw()
 
 
