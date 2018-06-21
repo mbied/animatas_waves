@@ -3,7 +3,7 @@ from DiscreteWaves import DiscreteWaves
 import numpy as np
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QMessageBox, QApplication,
                              QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, 
-                             QSizePolicy)
+                             QSizePolicy, QStackedWidget)
 from PyQt5.QtGui import QIcon, QFont, QDrag
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 
@@ -159,6 +159,13 @@ class DiscreteWavesGame(QWidget):
         self.setGeometry(300, 300, 800, 600)
         self.setWindowTitle("ANIMATAS Waves Scenario 1")
         self.setWindowIcon(QIcon("wave.png"))
+
+
+class Window(QMainWindow):
+    def __init__(self):
+        super(Window, self).__init__()
+
+        self.tasks = self.stacked_widget = 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

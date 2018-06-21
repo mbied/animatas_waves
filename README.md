@@ -14,7 +14,7 @@ manner and teach an artificial agent how to solve such tasks.
     git clone https://github.com/usr-lab/animatas_waves.git
     cd animatas_waves
     pip3 install -r Requirements.txt
-    python3 PythonGUI.py
+    python3 scenario1/PythonGUI.py
 
 ## Contributing
 

@@ -1,6 +1,7 @@
 import numpy as np
 from gym import Env
 from gym.spaces import Box, Tuple, Discrete, Dict
+import yaml
 
 
 def eval_wave(x, amplitude, omega, offset=0, phase=0):
@@ -41,23 +42,11 @@ class DiscreteWaves(Env):
 
         self.state = np.zeros(3, dtype=np.int64)
         self.current_target = np.zeros(3, dtype=np.int64)
-        base = np.hstack((np.ones((N+1,1)),np.random.randint(0,20,size=(N+1,1))/10))
+        base = np.hstack((np.ones((N+1,1)),np.random.randint(0,20,size=(N+1,1))/10,np.zeros((N+1, 1))))
         base[0,:] = 0
-        idx = np.lexsort((base[:,0],base[:,1]))
-        base = base[idx,:]
-
-        self.base_graph = np.array([[eval_wave(x, a, omega)
-                                    for x in np.linspace(0, 5, 1000)]
-                                    for a, omega in base])
-
-        # Set these in ALL subclasses
-        wave_space = Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000))
-        self.action_space = Tuple((Discrete(N+1), Discrete(num_sum)))
-        self.observation_space = Dict({
-                                "target": wave_space,
-                                "current": wave_space,
-                                "waves": Box(low=-1e2*np.ones((N+1, 1000)),
-                                             high=1e2*np.ones((N+1, 1000)))})
+        self._set_base(base)
+            
+        
 
     def step(self, action):
         """Select a wave for a slot. Action is a 2-tuple of a base wave index
@@ -95,11 +84,16 @@ class DiscreteWaves(Env):
 
         return observation, reward, done, None
 
-    def reset(self):
+    def reset(self, task_params=None):
         """Choose a new target wave and reset the current state.
         """
-        self.current_target = np.random.randint(0, self.base_graph.shape[0], size=3, dtype=np.int64)
-        self.state = np.zeros(3, dtype=np.int64)
+        if task_file is None:
+            self.current_target = np.random.randint(0, self.base_graph.shape[0], size=3, dtype=np.int64)
+            self.state = np.zeros(3, dtype=np.int64)
+        else:
+            self.current_target = task_params["target"]
+            self.state = task_params["state"]
+            self._set_base(task_params["base"])
 
         observation = {
             "target": np.sum(self.base_graph[self.current_target, :], axis=0),
@@ -108,6 +102,7 @@ class DiscreteWaves(Env):
         }
 
         return observation
+        
 
     def render(self, mode='human'):
         """Renders the environment.
@@ -150,27 +145,10 @@ class DiscreteWaves(Env):
         return
 
     def seed(self, seed=None):
-        """Sets the seed for this env's random number generator(s).
-        Note:
-            Some environments use multiple pseudorandom number generators.
-            We want to capture all such seeds used in order to ensure that
-            there aren't accidental correlations between multiple generators.
-        Returns:
-            list<bigint>: Returns the list of seeds used in this env's random
-              number generators. The first value in the list should be the
-              "main" seed, or the value which a reproducer should pass to
-              'seed'. Often, the main seed equals the provided 'seed', but
-              this won't be true if seed=None, for example.
-        """
-        logger.warn("Could not seed environment %s", self)
         return
 
     @property
     def unwrapped(self):
-        """Completely unwrap this env.
-        Returns:
-            gym.Env: The base non-wrapped gym.Env instance
-        """
         return self
 
     def __str__(self):
@@ -178,6 +156,23 @@ class DiscreteWaves(Env):
             return '<{} instance>'.format(type(self).__name__)
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+
+    def _set_base(self, base):
+        idx = np.lexsort((base[:,0],base[:,1]))
+        base = base[idx,:]
+
+        self.base_graph = np.array([[eval_wave(x, a, omega)
+                                    for x in np.linspace(0, 5, 1000)]
+                                    for a, omega, phase in base])
+
+        # Set these in ALL subclasses
+        wave_space = Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000))
+        self.action_space = Tuple((Discrete(N+1), Discrete(num_sum)))
+        self.observation_space = Dict({
+                                "target": wave_space,
+                                "current": wave_space,
+                                "waves": Box(low=-1e2*np.ones((N+1, 1000)),
+                                             high=1e2*np.ones((N+1, 1000)))})
 
 if __name__ == "__main__":
     a = DiscreteWaves()
