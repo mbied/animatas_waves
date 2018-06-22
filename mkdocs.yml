@@ -5,7 +5,6 @@ site_description: The Documentation for the ANIMATAS Waves Task. ANIMATAS is a
                   AI and teaching children.
 site_author: Sebastian Wallkötter
 theme: readthedocs
-strict: True
 
 pages:
   - 'Introduction': 'index.md'
