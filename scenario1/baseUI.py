@@ -1,7 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QApplication,
                              QLabel, QGridLayout, QSizePolicy,
-                             QStatusBar, QStackedWidget, QPushButton)
+                             QStatusBar, QStackedWidget, QPushButton,
+                             QVBoxLayout)
 from PyQt5.QtGui import QIcon, QFont, QDrag
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QEvent
 
@@ -9,25 +10,34 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import json
 
-class Preview(QLabel):
-    clicked = pyqtSignal()
-    def eventFilter(self, obj, event):
-        print("something")
-        if isinstance(obj, QLabel) and event.type() == QEvent.MouseButtonPress:
-            i = obj.property("index") 
-            self.clicked.emit(i)
-        return QWidget.eventFilter(self, obj, event)
+import time
+
+class Preview(QWidget):
+    clicked = pyqtSignal(int)
+
+    def __init__(self, idx, *args, **kwargs):
+        super(Preview, self).__init__(*args, **kwargs)
+        self.idx = idx
+
+    def mousePressEvent(self, event):
+        if event.type() == QEvent.MouseButtonPress:
+            self.clicked.emit(self.idx)
+        #    i = obj.property("index") 
+        #    self.clicked.emit(i)
+        #return QWidget.eventFilter(self, obj, event)
 
 class Task(QWidget):
     def __init__(self, idx, status_bar=None):
-        super(Task, self).__init__()
+        super(QWidget, self).__init__()
 
-        self.preview = Preview("Preview %d" % idx)
+        self.preview = Preview(idx)
         self.preview.setStyleSheet("border:2px solid rgb(0, 0, 0);")
 
-        foo = QGridLayout()
-        foo.addWidget(QLabel(str(idx)))
-        self.setLayout(foo)
+        self.back_button = QPushButton("Back")
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.back_button)
+        self.setLayout(layout)
 
 
 class TaskSelection(QWidget):
@@ -49,22 +59,29 @@ class Window(QMainWindow):
         self.status_bar = QStatusBar()
         self.status_bar.showMessage("Done")
 
-        available_tasks = [Task(idx, self.status_bar) for idx in range(10)] # replace me with actual loading routine
+        available_tasks = [Task(idx, status_bar=self.status_bar) for idx in range(10)] # replace me with actual loading routine
         task_selection = TaskSelection(available_tasks)
         widget_selector.addWidget(task_selection)
         for task in available_tasks:
             widget_selector.addWidget(task)
-            task.preview.clicked.connect(self.foo)
+            task.preview.clicked.connect(self.taskSelected)
+            task.back_button.clicked.connect(self.backButtonClicked)
 
         widget_selector.setCurrentIndex(0)
+        self.tasks = widget_selector
 
         self.setStatusBar(self.status_bar)
         self.setGeometry(300, 300, 800, 600)
         self.setWindowTitle("ANIMATAS Waves Scenario 1")
         self.setWindowIcon(QIcon("wave.png"))
 
-    def foo(self):
-        self.status_bar.showMessage("Something happned")#. %s" % str(value))
+    def taskSelected(self, idx):
+        self.status_bar.showMessage("You have selected on task %d" % idx)
+        self.tasks.setCurrentIndex(idx+1)
+
+    def backButtonClicked(self):
+        self.status_bar.showMessage("Please select a task to complete")
+        self.tasks.setCurrentIndex(0)
 
 
 if __name__ == "__main__":
