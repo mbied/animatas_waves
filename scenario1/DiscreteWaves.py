@@ -3,9 +3,11 @@ from gym import Env
 from gym.spaces import Box, Tuple, Discrete, Dict
 import yaml
 
+N = 10  # number of waves in base set
+num_sum = 3  # maximum number of elements in sum of waves
 
-def eval_wave(x, amplitude, omega, offset=0, phase=0):
-    return amplitude * np.sin(2*np.pi*omega*x + phase) + offset
+def eval_wave(x, amplitude, frequency, offset=0, phase=0):
+    return amplitude * np.sin(2*np.pi*frequency*x + phase) + offset
 
 
 class DiscreteWaves(Env):
@@ -87,6 +89,7 @@ class DiscreteWaves(Env):
     def reset(self, task_params=None):
         """Choose a new target wave and reset the current state.
         """
+        task_file = None
         if task_file is None:
             self.current_target = np.random.randint(0, self.base_graph.shape[0], size=3, dtype=np.int64)
             self.state = np.zeros(3, dtype=np.int64)
