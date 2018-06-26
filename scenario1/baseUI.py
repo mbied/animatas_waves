@@ -12,7 +12,34 @@ import json
 
 import time
 
-class Preview(QWidget):
+class Canvas(QWidget):
+    def __init__(self, width=2, height=3):
+        super(Canvas, self).__init__()
+        self.setStyleSheet("border:1px solid rgb(0, 0, 0);")
+
+        canvas = FigureCanvas(Figure(figsize=(width, height)))
+        ax = canvas.figure.subplots()
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        
+        self.ax = ax
+        self.canvas = canvas
+
+        # this widget overlays matplotlib to catch mouse clicks
+        invis = QWidget()
+        invis.setStyleSheet("background-color: rgba(255,0,0,0);")
+        self.invis = invis
+
+        layout = QVBoxLayout()
+        layout.addWidget(canvas)
+        layout.addWidget(invis)
+        self.setLayout(layout)
+
+    def paintEvent(self, event):
+        x, y, w, h = self.canvas.x(), self.canvas.y(), self.canvas.width(), self.canvas.height()
+        self.invis.setGeometry(x, y, w, h)
+
+class Preview(Canvas):
     clicked = pyqtSignal(int)
 
     def __init__(self, idx, *args, **kwargs):
@@ -31,7 +58,6 @@ class Task(QWidget):
         super(QWidget, self).__init__()
 
         self.preview = Preview(idx)
-        self.preview.setStyleSheet("border:2px solid rgb(0, 0, 0);")
 
         self.back_button = QPushButton("Back")
 
@@ -57,9 +83,9 @@ class Window(QMainWindow):
         widget_selector = QStackedWidget()
         self.setCentralWidget(widget_selector)
         self.status_bar = QStatusBar()
-        self.status_bar.showMessage("Done")
+        self.status_bar.showMessage("Please select a task to complete")
 
-        available_tasks = [Task(idx, status_bar=self.status_bar) for idx in range(10)] # replace me with actual loading routine
+        available_tasks = [Task(idx, status_bar=self.status_bar) for idx in range(2)] # replace me with actual loading routine
         task_selection = TaskSelection(available_tasks)
         widget_selector.addWidget(task_selection)
         for task in available_tasks:

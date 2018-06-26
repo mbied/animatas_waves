@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 import json
 
 from baseUI import Task as TaskStub
-from baseUI import Window
+from baseUI import Window, Canvas
 import baseUI
 
 N = 10  # number of waves in base set
@@ -28,27 +28,17 @@ class Backend:
         self.observation, reward, done, _ = self.env.step(action)
 backend = Backend()
 
-class WavePlotCanvas(FigureCanvas):
-    def __init__(self, idx, parent=None, width=3, height=2, dpi=100):
+class WavePlotCanvas(Canvas):
+    def __init__(self, idx, width=3, height=2, dpi=100):
+        super(WavePlotCanvas, self).__init__()
         self.idx = idx
         x = np.linspace(0, 5, 1000)
         data = backend.observation["waves"][idx, :]
 
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        self.axes.plot(x, data)
-        self.axes.get_xaxis().set_visible(False)
-        self.axes.get_yaxis().set_visible(False)
-
-        super().__init__(fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
+        self.ax.plot(x, data)
 
     def mouseMoveEvent(self, e):
+        print("something")
         if e.buttons() != Qt.LeftButton:
             return
         mimeData = QMimeData()
@@ -160,6 +150,9 @@ class WavesTask(TaskStub):
         super(WavesTask, self).__init__(idx, **kwargs)
         self.task = Task(idx, **kwargs)
         self.layout().addWidget(self.task)
+
+        x = np.linspace(0, 5, 1000)
+        self.preview.ax.plot(x, backend.observation["target"])
 
         layout = QVBoxLayout()
         layout.addWidget(BaseWaveSlot(idx))
