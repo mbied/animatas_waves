@@ -2,19 +2,14 @@
 
 [![Documentation Status](https://readthedocs.org/projects/animatas-waves/badge/?version=latest)](https://animatas-waves.readthedocs.io/en/latest/?badge=latest)
 
-This is the first scenario in the waves task of the 
-[ANIMATAS](http://www.animatas.eu/) project. 
-The user is presented with a discrete set of waves as well as a target wave 
-which is a composition of waves from the discrete set.
-Using this scenario a human can both learn about interference in an interactive
-manner and teach an artificial agent how to solve such tasks.
+This is a collection of scenarios for the [ANIMATAS](http://www.animatas.eu/) project. 
+Scenarios are grouped by the common theme of "waves", meaning that they are aimed towards 
+teaching a human various properties of waves, such as frequency, amplitude or 
+interference.
 
 ## Installation & Quickstart
 
-    git clone https://github.com/usr-lab/animatas_waves.git
-    cd animatas_waves
-    pip3 install -r Requirements.txt
-    python3 scenario1/PythonGUI.py
+    Please check the individual sub-folders `scenarioX` on how to install them
 
 ## Contributing
 
