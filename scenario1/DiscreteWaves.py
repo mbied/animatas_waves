@@ -2,6 +2,7 @@ import numpy as np
 from gym import Env
 from gym.spaces import Box, Tuple, Discrete, Dict
 import yaml
+from itertools import permutations
 
 N = 10  # number of waves in base set
 num_sum = 3  # maximum number of elements in sum of waves
@@ -77,9 +78,11 @@ class DiscreteWaves(Env):
             "waves": self.base_graph
         }
 
-        if np.all(self.state == self.current_target):
+        valid_combinations = np.array(list(permutations(self.current_target)))
+        if np.any(np.all(valid_combinations == self.state, axis=1)):
             reward = 0
             done = True
+            print("Done is True")
         else:
             reward = -1
             done = False

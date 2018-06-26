@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QApplication,
                              QLabel, QGridLayout, QSizePolicy,
                              QStatusBar, QStackedWidget, QPushButton,
-                             QVBoxLayout)
+                             QVBoxLayout, QGraphicsDropShadowEffect)
 from PyQt5.QtGui import QIcon, QFont, QDrag
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QEvent
 
@@ -54,6 +54,8 @@ class Preview(Canvas):
         #return QWidget.eventFilter(self, obj, event)
 
 class Task(QWidget):
+    task_solved = pyqtSignal()
+
     def __init__(self, idx, status_bar=None):
         super(QWidget, self).__init__()
 
@@ -89,6 +91,7 @@ class Window(QMainWindow):
         task_selection = TaskSelection(available_tasks)
         widget_selector.addWidget(task_selection)
         for task in available_tasks:
+            task.task_solved.connect(self.backButtonClicked)
             widget_selector.addWidget(task)
             task.preview.clicked.connect(self.taskSelected)
             task.back_button.clicked.connect(self.backButtonClicked)

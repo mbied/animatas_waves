@@ -2,8 +2,9 @@ import sys
 from DiscreteWaves import DiscreteWaves
 import numpy as np
 from PyQt5.QtWidgets import (QWidget, QMessageBox, QApplication,
-                             QHBoxLayout, QVBoxLayout, QLabel, QGridLayout)
-from PyQt5.QtGui import QDrag
+                             QHBoxLayout, QVBoxLayout, QLabel, QGridLayout,
+                             QGraphicsDropShadowEffect)
+from PyQt5.QtGui import QDrag, QColor
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 
 import json
@@ -93,6 +94,8 @@ class Task(QWidget):
         self.slot_list = slot_list
 
 class WavesTask(TaskStub):
+    task_solved = pyqtSignal()
+
     def __init__(self, idx, **kwargs):
         super(WavesTask, self).__init__(idx, **kwargs)
 
@@ -107,6 +110,11 @@ class WavesTask(TaskStub):
             slot.slot_changed.connect(self.on_slot_changed)
 
         # Set Task Preview
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QColor(0,0,255,128))
+        shadow.setOffset(0,0)
+        self.preview.setGraphicsEffect(shadow)
         self.preview.ax.plot(x, observation["target"])
 
         # Set Base Waves
@@ -119,13 +127,14 @@ class WavesTask(TaskStub):
         self.slot_list = task.slot_list
         self.observation = observation
         self.env = env
+        self.shadow = shadow
 
     def on_slot_changed(self, new_wave, slot_position):
         slot = self.slot_list[slot_position]
         result_canvas = self.result_canvas
 
         x = np.linspace(0, 5, 1000)
-        observation, _, _, _ = self.env.step((new_wave, slot_position))
+        observation, _, done, _ = self.env.step((new_wave, slot_position))
 
         slot.ax.cla()
         slot.ax.plot(x, observation["waves"][new_wave, :])
@@ -135,6 +144,25 @@ class WavesTask(TaskStub):
         result_canvas.ax.plot(x, observation["current"],"b")
         result_canvas.ax.plot(x, observation["target"],"r")
         result_canvas.canvas.draw()
+
+        if done:
+            self.done = True
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Task Solved")
+            msg.setWindowTitle("Solved")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.buttonClicked.connect(self.taskComplete)
+            self.shadow.setColor(QColor(0,255,0,200))
+            msg.exec_()
+        else:
+            self.done = False
+            self.shadow.setColor(QColor(255,0,0,200))
+
+
+    def taskComplete(self, event):
+        self.task_solved.emit()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
