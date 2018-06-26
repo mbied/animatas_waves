@@ -1,14 +1,11 @@
 import sys
 from DiscreteWaves import DiscreteWaves
 import numpy as np
-from PyQt5.QtWidgets import (QMainWindow, QWidget, QMessageBox, QApplication,
-                             QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, 
-                             QSizePolicy, QStackedWidget)
-from PyQt5.QtGui import QIcon, QFont, QDrag
+from PyQt5.QtWidgets import (QWidget, QMessageBox, QApplication,
+                             QHBoxLayout, QVBoxLayout, QLabel, QGridLayout)
+from PyQt5.QtGui import QDrag
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 import json
 
 from baseUI import Task as TaskStub
@@ -18,29 +15,15 @@ import baseUI
 N = 10  # number of waves in base set
 num_sum = 3  # maximum number of elements in sum of waves
 
-class Backend:
-    env = DiscreteWaves(N, num_sum)
-
-    def __init__(self):
-        self.observation = self.env.reset()
-
-    def step(self, action):
-        self.observation, reward, done, _ = self.env.step(action)
-backend = Backend()
-
 class WavePlotCanvas(Canvas):
-    def __init__(self, idx, width=3, height=2, dpi=100):
-        super(WavePlotCanvas, self).__init__()
+    def __init__(self, idx):
+        super(WavePlotCanvas, self).__init__(width=3, height=2)
         self.idx = idx
-        x = np.linspace(0, 5, 1000)
-        data = backend.observation["waves"][idx, :]
-
-        self.ax.plot(x, data)
 
     def mouseMoveEvent(self, e):
-        print("something")
         if e.buttons() != Qt.LeftButton:
             return
+
         mimeData = QMimeData()
         mimeData.setText(str(self.idx))
 
@@ -51,112 +34,107 @@ class WavePlotCanvas(Canvas):
         drag.exec_(Qt.MoveAction)
 
 
-class BaseWaveSlot(FigureCanvas):
-    slot_changed = pyqtSignal(int)
+class BaseWaveSlot(Canvas):
+    slot_changed = pyqtSignal(int, int)
 
-    def __init__(self, slot_position, parent=None, width=5, height=5, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+    def __init__(self, slot_position):
+        super(BaseWaveSlot, self).__init__(width=5, height=5)
 
         self.slot_position = slot_position
-
-        self.axes.get_xaxis().set_visible(False)
-        self.axes.get_yaxis().set_visible(False)
-        self.x = np.linspace(0, 5, 1000)
-
-        super().__init__(fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, e):
         e.accept()
 
     def dropEvent(self, e):
-        self.axes.cla()
         idx = int(e.mimeData().text())
-        self.axes.plot(self.x, backend.observation["waves"][idx, :])
-        self.draw()
-
-        backend.step((idx, self.slot_position))
-        self.slot_changed.emit(idx)
+        self.slot_changed.emit(idx, self.slot_position)
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
 
 
-class ResultWave(FigureCanvas):
-    observation_changed = pyqtSignal()
-
-    def __init__(self, parent=None, width=5, height=5, dpi=100):
-        x = np.linspace(0, 5, 1000)
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        self.axes.get_xaxis().set_visible(False)
-        self.axes.get_yaxis().set_visible(False)
-        self.axes.plot(x, backend.observation["current"])
-        self.axes.plot(x, backend.observation["target"])
-        self.x = x
-
-        super().__init__(fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
-    def on_slot_changed(self, idx):
-        self.axes.cla()
-        self.axes.plot(self.x, backend.observation["target"],"r")
-        self.axes.plot(self.x, backend.observation["current"],"b")
-        self.draw()
+class ResultWave(Canvas):
+    def __init__(self):
+        super().__init__(width=5, height=5)
 
 class Task(QWidget):
-    def __init__(self, idx, **kwargs):
+    def __init__(self, num_bases, num_slots, **kwargs):
         super(Task, self).__init__()
-        # Overall Layout
-        layout = QVBoxLayout()
 
-        result = ResultWave()
+        # Slots and Result
         sum_display = QHBoxLayout()
-        signs = ["+"] * (num_sum - 1) + ["="]
-
+        result = ResultWave()
+        signs = ["+"] * (num_slots - 1) + ["="]
+        slot_list = list()
         for idx, sign in enumerate(signs):
-            slot = BaseWaveSlot(idx, self)
-            slot.slot_changed.connect(result.on_slot_changed)
+            slot = BaseWaveSlot(idx)
+            slot_list.append(slot)
             sum_display.addWidget(slot)
             sum_display.addWidget(QLabel(sign, self))
         sum_display.addWidget(result)
-        layout.addLayout(sum_display)
 
+        # Pool of Base Waves
+        bases = list()
         base_wave_matrix = QGridLayout()
-        base_waves = np.zeros(N+1)
-        for idx, wave in enumerate(backend.env.base_graph):
+        for idx in range(num_bases):
             pos = np.unravel_index(idx, (int(np.ceil((N+1)/4)), 4))
-            widget = WavePlotCanvas(idx, self)
+            widget = WavePlotCanvas(idx)
             base_wave_matrix.addWidget(widget, *pos)
+            bases.append(widget)
 
+        layout = QVBoxLayout()
+        layout.addLayout(sum_display)
         layout.addLayout(base_wave_matrix)
         self.setLayout(layout)
+
+        self.result_canvas = result
+        self.base_canvas_list = bases
+        self.slot_list = slot_list
 
 class WavesTask(TaskStub):
     def __init__(self, idx, **kwargs):
         super(WavesTask, self).__init__(idx, **kwargs)
-        self.task = Task(idx, **kwargs)
-        self.layout().addWidget(self.task)
+
+        env = DiscreteWaves(N, num_sum)
+        observation = env.reset()
 
         x = np.linspace(0, 5, 1000)
-        self.preview.ax.plot(x, backend.observation["target"])
+        task = Task(len(env.base_graph), num_sum, **kwargs)
+        self.layout().addWidget(task)
 
-        layout = QVBoxLayout()
-        layout.addWidget(BaseWaveSlot(idx))
-        #self.preview.setLayout(layout)
+        for slot in task.slot_list:
+            slot.slot_changed.connect(self.on_slot_changed)
+
+        # Set Task Preview
+        self.preview.ax.plot(x, observation["target"])
+
+        # Set Base Waves
+        for wave, canvas in zip(observation["waves"], task.base_canvas_list):
+            canvas.ax.plot(x, wave)
+
+        task.result_canvas.ax.plot(x, observation["target"],"r")
+
+        self.result_canvas = task.result_canvas
+        self.slot_list = task.slot_list
+        self.observation = observation
+        self.env = env
+
+    def on_slot_changed(self, new_wave, slot_position):
+        slot = self.slot_list[slot_position]
+        result_canvas = self.result_canvas
+
+        x = np.linspace(0, 5, 1000)
+        observation, _, _, _ = self.env.step((new_wave, slot_position))
+
+        slot.ax.cla()
+        slot.ax.plot(x, observation["waves"][new_wave, :])
+        slot.canvas.draw()
+
+        result_canvas.ax.cla()
+        result_canvas.ax.plot(x, observation["current"],"b")
+        result_canvas.ax.plot(x, observation["target"],"r")
+        result_canvas.canvas.draw()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

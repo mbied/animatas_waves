@@ -85,7 +85,7 @@ class Window(QMainWindow):
         self.status_bar = QStatusBar()
         self.status_bar.showMessage("Please select a task to complete")
 
-        available_tasks = [Task(idx, status_bar=self.status_bar) for idx in range(2)] # replace me with actual loading routine
+        available_tasks = [Task(idx, status_bar=self.status_bar) for idx in range(8)] # replace me with actual loading routine
         task_selection = TaskSelection(available_tasks)
         widget_selector.addWidget(task_selection)
         for task in available_tasks:
