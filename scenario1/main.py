@@ -13,9 +13,6 @@ from baseUI import Task as TaskStub
 from baseUI import Window, Canvas
 import baseUI
 
-N = 10  # number of waves in base set
-num_sum = 3  # maximum number of elements in sum of waves
-
 class WavePlotCanvas(Canvas):
     def __init__(self, idx):
         super(WavePlotCanvas, self).__init__(width=3, height=2)
@@ -79,7 +76,7 @@ class Task(QWidget):
         bases = list()
         base_wave_matrix = QGridLayout()
         for idx in range(num_bases):
-            pos = np.unravel_index(idx, (int(np.ceil((N+1)/4)), 4))
+            pos = np.unravel_index(idx, (int(np.ceil((num_bases+1)/4)), 4))
             widget = WavePlotCanvas(idx)
             base_wave_matrix.addWidget(widget, *pos)
             bases.append(widget)
@@ -99,6 +96,8 @@ class WavesTask(TaskStub):
     def __init__(self, idx, **kwargs):
         super(WavesTask, self).__init__(idx, **kwargs)
 
+        N = 10  # number of waves in base set
+        num_sum = 3  # maximum number of elements in sum of waves
         env = DiscreteWaves(N, num_sum)
         observation = env.reset()
 
