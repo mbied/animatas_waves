@@ -105,7 +105,7 @@ class Window(QMainWindow):
         self.setWindowIcon(QIcon("wave.png"))
 
     def taskSelected(self, idx):
-        self.status_bar.showMessage("You have selected on task %d" % idx)
+        self.status_bar.showMessage("You have selected task %d" % idx)
         self.tasks.setCurrentIndex(idx+1)
 
     def backButtonClicked(self):
