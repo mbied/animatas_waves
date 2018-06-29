@@ -8,3 +8,4 @@ theme: readthedocs
 
 pages:
   - 'Introduction': 'index.md'
+  - 'Scenario 1': 'scenario1/scenario1.md'
