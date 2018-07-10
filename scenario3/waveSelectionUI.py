@@ -95,6 +95,10 @@ class BaseWaveSlot(Canvas):
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
+        
+class ResultWave(Canvas):
+    def __init__(self):
+        super().__init__(width=5, height=5)        
 
 class Task(QWidget):
     def __init__(self, num_bases, num_slots, **kwargs):
@@ -102,7 +106,7 @@ class Task(QWidget):
 
         # Slots and Result
         sum_display = QHBoxLayout()
-        #result = ResultWave()
+        result = ResultWave()
         signs = ["+"] * (num_slots - 1) + ["="]
         slot_list = list()
         for idx, sign in enumerate(signs):
@@ -110,7 +114,7 @@ class Task(QWidget):
             slot_list.append(slot)
             sum_display.addWidget(slot)
             sum_display.addWidget(QLabel(sign, self))
-        #sum_display.addWidget(result)
+        sum_display.addWidget(result)
 
         # Pool of Base Waves
         bases = list()
@@ -126,13 +130,16 @@ class Task(QWidget):
         layout.addLayout(base_wave_matrix)
         self.setLayout(layout)
 
-        #self.result_canvas = result
+        self.result_canvas = result
         self.base_canvas_list = bases
         self.slot_list = slot_list
 
-class waveSelect(QWidget):
-    def __init__(self):
-        print("waveSelect init.")
+class WaveSelect(QWidget):
+    def __init__(self, num_sum):
+        QWidget.__init__(self)
+        self.num_sum = num_sum
+        self.selected_waves = np.tile(np.zeros(1000), (num_sum,1))
+
 
         
     def choose_waves(self, base_graph):
@@ -140,10 +147,39 @@ class waveSelect(QWidget):
         
         x = np.linspace(0, 5, 1000)
         task = Task(len(base_graph), 2)
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        self.layout().addWidget(task)
+        
+        for slot in task.slot_list:
+            slot.slot_changed.connect(self.on_slot_changed)
         
         # Set Base Waves
         for wave, canvas in zip(base_graph, task.base_canvas_list):
             canvas.ax.plot(x, wave)
+            
+        self.result_canvas = task.result_canvas
+        self.slot_list = task.slot_list
+        self.base_graph = base_graph
+            
+    def on_slot_changed(self, new_wave, slot_position):
+            slot = self.slot_list[slot_position]
+            result_canvas = self.result_canvas
+
+            x = np.linspace(0, 5, 1000)
+
+            slot.ax.cla()
+            wave = self.base_graph[new_wave, :] 
+            slot.ax.plot(x, wave)
+            slot.canvas.draw()
+            self.selected_waves[slot_position] = wave
+            added_wave = np.sum(self.selected_waves,axis=0)
+
+            result_canvas.ax.cla()
+            result_canvas.ax.plot(x, added_wave,"b")
+            #result_canvas.ax.plot(x, observation["target"],"r")
+            result_canvas.canvas.draw()
+
 
 
         

@@ -55,7 +55,8 @@ class InteractiveWaves(object):
         base[0,:] = 0
         self._set_base(base)
         
-        self.wave_select = ws.waveSelect()
+        self.wave_select = ws.WaveSelect(num_sum)
+
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -106,6 +107,7 @@ class InteractiveWaves(object):
                             for wave_params in self.state])
         
         self.wave_select.choose_waves(self.base_graph)
+        self.wave_select.show()
 
         observation = {
             "target": np.sum(self.base_graph[self.idx_chosen_waves, :], axis=0),
