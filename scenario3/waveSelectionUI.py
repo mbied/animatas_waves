@@ -135,21 +135,21 @@ class Task(QWidget):
         self.slot_list = slot_list
 
 class WaveSelect(QWidget):
-    def __init__(self, num_sum):
+    def __init__(self,interactive_waves_env, num_sum=2):
         QWidget.__init__(self)
         self.num_sum = num_sum
-        self.selected_waves = np.tile(np.zeros(1000), (num_sum,1))
-
-
-        
-    def choose_waves(self, base_graph):
-        #print(base_graph)   
-        
+        self.interactive_waves_env = interactive_waves_env
+        base_graph = interactive_waves_env.base_graph
+        self.selected_waves = np.tile(np.zeros(1000), (num_sum,1)) 
+        self.selected_waves_idx = -1*np.ones(num_sum)
         x = np.linspace(0, 5, 1000)
         task = Task(len(base_graph), 2)
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.layout().addWidget(task)
+        self.b1 = QPushButton("Button1")
+        layout.addWidget(self.b1)
+        self.b1.clicked.connect(self.btn_press)
         
         for slot in task.slot_list:
             slot.slot_changed.connect(self.on_slot_changed)
@@ -161,6 +161,8 @@ class WaveSelect(QWidget):
         self.result_canvas = task.result_canvas
         self.slot_list = task.slot_list
         self.base_graph = base_graph
+        self.show()
+
             
     def on_slot_changed(self, new_wave, slot_position):
             slot = self.slot_list[slot_position]
@@ -173,12 +175,17 @@ class WaveSelect(QWidget):
             slot.ax.plot(x, wave)
             slot.canvas.draw()
             self.selected_waves[slot_position] = wave
+            self.selected_waves_idx = slot_position
             added_wave = np.sum(self.selected_waves,axis=0)
 
             result_canvas.ax.cla()
             result_canvas.ax.plot(x, added_wave,"b")
             #result_canvas.ax.plot(x, observation["target"],"r")
             result_canvas.canvas.draw()
+            
+    def btn_press(self, b):
+        # add check if waves were selected
+        self.interactive_waves_env.reset(self.selected_waves_idx)
 
 
 

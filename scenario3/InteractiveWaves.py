@@ -54,10 +54,8 @@ class InteractiveWaves(object):
         base = np.hstack((np.random.randint(0,max_amplitude, size=(N+1,1)),np.random.randint(0,max_f,size=(N+1,1)),np.zeros((N+1, 1))))
         base[0,:] = 0
         self._set_base(base)
+        print("env init")
         
-        self.wave_select = ws.WaveSelect(num_sum)
-
-
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
@@ -89,15 +87,14 @@ class InteractiveWaves(object):
         
         return observation, reward, done, None
 
-    def reset(self):
+    def reset(self, idx_chosen_waves):
         """Resets the state of the environment and returns an initial observation.
         Returns: observation (object): the initial observation of the
             space.
         """
-        idx1, idx2 = 1, 2 # = request_target(self.base_graph)        
-        self.idx_chosen_waves = np.array([idx1, idx2])
+
         
-        # just some random chosen hard copied values for a start, decide later how to set them properly
+        # just some random chosen 'dirty fixed' values for a start, decide later how to set them properly
         a1,f1 = 1, 0.5
         a2,f2 = 2, 2
         self.state = np.array([[a1,f1],[a2,f2]])
@@ -106,16 +103,17 @@ class InteractiveWaves(object):
                             for x in np.linspace(0, 5, 1000)]
                             for wave_params in self.state])
         
-        self.wave_select.choose_waves(self.base_graph)
-        self.wave_select.show()
-
+        #idx1, idx2 = 1, 2 # = request_target(self.base_graph)        
+        #self.idx_chosen_waves = np.array([idx1, idx2])
+        
+        self.idx_chosen_waves = idx_chosen_waves
+        
         observation = {
             "target": np.sum(self.base_graph[self.idx_chosen_waves, :], axis=0),
             "current": np.sum(action_graphs,axis=0)
         }
-        
-        
-        
+         
+        print("environment reset")
         
         return observation
 
