@@ -77,8 +77,6 @@ class DiscreteWavesGridWorld(Env):
             done = True
         else:
             done = False
-            
-        print(self.action_availability)
                 
         return observation, reward, done, None
 
@@ -140,9 +138,7 @@ class DiscreteWavesGridWorld(Env):
             if self.state[s] == 0:
                 availability[self.num_sum*s+1] = False
             if self.state[s] == 9:
-                availability[self.num_sum*s] = False
-                
-            
+                availability[self.num_sum*s] = False                      
         self.action_availability = availability
         return
 
