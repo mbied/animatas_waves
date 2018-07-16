@@ -107,6 +107,9 @@ class TestingEnv(object):
         """
         logger.warn("Could not seed environment %s", self)
         return
+    
+    def test_function(self):
+        print(self.reward_range)
 
     @property
     def unwrapped(self):
@@ -125,5 +128,6 @@ class TestingEnv(object):
 if __name__ == "__main__":
     env = TestingEnv()
     print(env.action_space)
+    env.test_function()
     #a.reset()
     #a.step((5, 0))

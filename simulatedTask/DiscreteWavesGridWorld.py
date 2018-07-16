@@ -9,6 +9,9 @@ from itertools import permutations
 def eval_wave(x, amplitude, frequency, offset=0, phase=0):
     return amplitude * np.sin(2*np.pi*frequency*x + phase) + offset
 
+def squared_loss(x, x_target):
+    return sum((x-x_target)**2)
+
 
 class DiscreteWavesGridWorld(Env):
     """The main OpenAI Gym class. It encapsulates an environment with
@@ -34,84 +37,47 @@ class DiscreteWavesGridWorld(Env):
     metadata = {'render.modes': []}
     reward_range = (-1, 1)
     spec = None
+    discretization = 10
+    target_state = np.array([3, 5, 2, 6])
 
-    def __init__(self, num_sum=1):
+    def __init__(self, num_sum=2):
         """
 
         """
         super().__init__()
-
-        self.state = np.zeros(2*num_sum, dtype=np.int64)
-        self.current_target = np.zeros(3, dtype=np.int64)
+        self.num_sum = num_sum
+        self.state = np.zeros(2*num_sum, dtype=np.int64) 
+        
+        
         
         # Set these in ALL subclasses
-        wave_space = Box(low=-1e6*np.ones(1000), high=1e6*np.ones(1000))
-        state_space = Discrete
-        self.action_space = Tuple((Discrete(N+1), Discrete(num_sum)))
-        self.observation_space = Dict({
-                                "target": wave_space,
-                                "current": wave_space,
-                                "waves": Box(low=-1e2*np.ones((N+1, 1000)),
-                                             high=1e2*np.ones((N+1, 1000)))})
+        self.action_space = Discrete(2*2*num_sum)
+
             
         
 
     def step(self, action):
-        """Select a wave for a slot. Action is a 2-tuple of a base wave index
-           and a slot. It returns the current observation, reward and if the
-           environment has completed.
-
-           Returns:
-                observation: dict with keys "target", "current", "waves" where
-                "target" is the wave to be created, "current" is the product of the
-                currently selected waves and "waves" is a collection of 
-                representations of the base wave
-           
-           Example: action=(5, 3)
-           Meaning: Select base_wave[5] for the slot with index 3.
-
-           Note: Slots can be deselected / emptied using (0,<slot_idx>) which
-           is guaranteed to be a wave with amplitude 0.
+        """
         """
         if not self.action_space.contains(action):
             raise Exception("Action %s is not in action space." % action)
 
-        self.state[action[1]] = action[0]
-        observation = {
-            "target": np.sum(self.base_graph[self.current_target, :], axis=0),
-            "current": np.sum(self.base_graph[self.state, :], axis=0),
-            "waves": self.base_graph
-        }
 
-        valid_combinations = np.array(list(permutations(self.current_target)))
-        if np.any(np.all(valid_combinations == self.state, axis=1)):
-            reward = 0
+        self.state = self._calc_next_state(self, action)
+        observation = self.state
+        reward = self._calc_reward(self.state)
+        if reward == 0:
             done = True
-            print("Done is True")
         else:
-            reward = -1
             done = False
-
+                
         return observation, reward, done, None
 
     def reset(self, task_params=None):
-        """Choose a new target wave and reset the current state.
         """
-        task_file = None
-        if task_file is None:
-            self.current_target = np.random.randint(0, self.base_graph.shape[0], size=3, dtype=np.int64)
-            self.state = np.zeros(3, dtype=np.int64)
-        else:
-            self.current_target = task_params["target"]
-            self.state = task_params["state"]
-            self._set_base(task_params["base"])
-
-        observation = {
-            "target": np.sum(self.base_graph[self.current_target, :], axis=0),
-            "current": np.sum(self.base_graph[self.state, :], axis=0),
-            "waves": self.base_graph
-        }
-
+        """
+        self.state = np.zeros(2*self.num_sum, dtype=np.int64)
+        observation = self.state
         return observation
         
 
@@ -167,18 +133,47 @@ class DiscreteWavesGridWorld(Env):
             return '<{} instance>'.format(type(self).__name__)
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+        
+    def _calc_state_delta(self, action):
+        state_delta = np.zeros(len(self.state))
+        changed_param = action // self.num_sum
+        
+        if (action % self.num_sum) == 0:
+            change_value = 1
+        else:
+            change_value = -1
+            
+        state_delta[changed_param] = change_value
+        print("State delta is: %s", state_delta)
+        return state_delta
+        
 
-    def _set_base(self, base):
-        idx = np.lexsort((base[:,0],base[:,1]))
-        base = base[idx,:]
-
-        self.base_graph = np.array([[eval_wave(x, a, omega)
-                                    for x in np.linspace(0, 5, 1000)]
-                                    for a, omega, phase in base])
+    def _calc_next_state(self, state, action):
+        state_delta = self._calc_state_delta(action)
+        next_state = self.state + state_delta
+        #TODO check if next state is legal before returning
+        print("Next state is: %s", next_state)
+        return next_state
+        
+    def _calc_reward(self):
+        #x = np.linspace(0, 1, 1000)
+        #wave_ground_truth = eval_wave(x, self.amplitude, self.frequency)
+        #wave = eval_wave(x, action[0], action[1])
+        #reward = -squared_loss(wave_ground_truth, wave)
+        #reward = -squared_loss(np.array([self.amplitude, self.frequency]), np.array([action[0], action[1]]))
+        #action_graphs = np.array([[eval_wave(x,wave_params[0],wave_params[1]) 
+         #                   for x in np.linspace(0, 5, 1000)]
+         #                   for wave_params in self.state])
+        
+        reward = -0.5
+        return reward
+        
 
         
 
 if __name__ == "__main__":
     a = DiscreteWavesGridWorld()
-    a.reset()
-    a.step((5, 0))
+    observation = a.reset()
+    print(observation)
+    observation, reward, done, _ = a.step(0)
+    print(observation)
