@@ -2,9 +2,47 @@ import sys
 from DiscreteWavesGridWorld import DiscreteWavesGridWorld
 from QLearning import QLearning
 import numpy as np
+
+from PyQt5.QtWidgets import QPushButton, QDialog, QApplication, QVBoxLayout, QSizePolicy
+#from PyQt5.QtWidgets import (QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, QSlider, QGridLayout, QLabel)
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from PyQt5.QtWidgets import QPushButton, QDialog, QApplication, QVBoxLayout
+def eval_wave(x, amplitude, f, offset=0, phase=0):
+    return amplitude * np.sin(2*np.pi*f*x + phase) + offset
+
+class PlotCanvas(FigureCanvas):
+ 
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+ 
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+ 
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        #self.plot(5,1)
+ 
+ 
+    def plot(self, amplitude, f, amplitude2, f2,):
+        x = np.linspace(0, 1, 1000)
+        data1 = eval_wave(x, amplitude, f)
+        data2 = eval_wave(x, amplitude2, f2)
+        data = data1 + data2
+        ax = self.figure.add_subplot(111)
+        ax.clear()
+        ax.set_ylim([-10,10])
+        ax.plot(x, data)
+        data = eval_wave(x, 3, 5) + eval_wave(x, 2, 6)
+        ax.plot(x,data)
+        #ax.plot(x, eval_wave(x, backend.observation[0], backend.observation[1]), 'g--')
+        #ax.set_title('Scenario 2')
+        self.draw()
 
 class Form(QDialog):
     def __init__(self, qLearning, parent=None):
@@ -17,6 +55,8 @@ class Form(QDialog):
         self.b1 = QPushButton("Button1")
         self.b1.clicked.connect(self.btnstate)
         layout.addWidget(self.b1)
+        self.canvas = PlotCanvas(self, width=5, height=4)
+        layout.addWidget(self.canvas)
         self.setLayout(layout)
         
     def btnstate(self):
@@ -27,6 +67,7 @@ class Form(QDialog):
         #cum_reward += reward            
         #i += 1
         self.state = next_state
+        self.canvas.plot(self.state[0],self.state[1],self.state[2],self.state[3])
         print(self.state)
         
         if done:

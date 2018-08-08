@@ -79,7 +79,6 @@ class App(QWidget):
         f = self.slider_h.value()/10
         self.m.plot(amplitude,f)
         backend.step(np.array([amplitude, f]))
-        #"Sammy has {} balloons.".format(5)
         s = "Received Reward: {:.4f}".format(backend.reward)
         self.label.setText(s)
  
