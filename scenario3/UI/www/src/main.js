@@ -1,9 +1,6 @@
 import Vue from 'vue'
-import Vddl from 'vddl'
 import App from './App'
 import router from './router'
-
-Vue.use(Vddl)
 
 Vue.config.productionTip = false
 

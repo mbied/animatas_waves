@@ -4,7 +4,6 @@
 
 <script>
 export default {
-  name: 'Landing',
   data () {
     return {
       msg: 'Welcome to Your Vue.js App'
