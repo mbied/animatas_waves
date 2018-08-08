@@ -4,10 +4,11 @@
 
 <script>
 export default {
-  data() {
+  name: 'Exercise',
+  data () {
     return {
-      msg: 'Welcome to Your Vue.js App',
-    };
-  },
-};
+      msg: 'Welcome to Your Vue.js App'
+    }
+  }
+}
 </script>
