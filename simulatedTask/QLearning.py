@@ -5,47 +5,52 @@ import copy
 
 class QLearning:
     
-    def __init__(self,)
+    def __init__(self, env, alpha=.95, gamma=.7, epsilon=0, state_action_dimensions = [10,10,10,10,8]):
+        self.alpha = alpha
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.Q = np.zeros(state_action_dimensions) 
+        self.env = env
     
     
-def chose_action(env, Q):
-    
-    r = np.random.rand()
-    
-    if r > 1:
-        action_legit = False
-        while not action_legit:
-            action = np.random.randint(0, 8,size=1)[0]
-            action_legit = env.action_availability[action]
+    def chose_action(self):        
+        # with probability p = epsilon a random action is selected
+        r = np.random.rand()
+        if r > 1 - self.epsilon:
+            action_legit = False
+            while not action_legit:
+                action = np.random.randint(0, 8,size=1)[0]
+                action_legit = self.env.action_availability[action]
+                
+        else:
+            s = env.state
+            #print(env.state)
+            #print(s[0],s[1],s[2],s[3])
+            Q_temp = self.Q[int(s[0]),int(s[1]),int(s[2]),int(s[3]),:] # TODO: change to generic implementation
+            Q_fixed_s = copy.deepcopy(Q_temp)
+            #insert NaN into not available actions
+            Q_fixed_s[np.invert(env.action_availability)] = np.nan
+            action = np.nanargmax(Q_fixed_s)
             
-    else:
-        s = env.state
-        #print(env.state)
-        #print(s[0],s[1],s[2],s[3])
-        Q_temp = Q[int(s[0]),int(s[1]),int(s[2]),int(s[3]),:]
-        Q_fixed_s = copy.deepcopy(Q_temp)
-        #insert NaN into not available actions
-        Q_fixed_s[np.invert(env.action_availability)] = np.nan
-        action = np.nanargmax(Q_fixed_s)
+        return action
         
-    return action
-    
-def update_Q_function(Q, state, next_state, action, reward, action_availability, alpha=.95, gamma=.7):
-    Q_temp = Q[int(next_state[0]),int(next_state[1]),int(next_state[2]),int(next_state[3]),:]
-    Q_next_state = copy.deepcopy(Q_temp)
-    Q_next_state[np.invert(action_availability)] = np.nan
-    max_arg_action = np.nanargmax(Q_next_state)
-    Q_max = Q_next_state[max_arg_action]
-    Q_d = Q
-    Q_s_a = Q_d[int(state[0]),int(state[1]),int(state[2]),int(state[3]), action]
-    Q_d[int(state[0]),int(state[1]),int(state[2]),int(state[3]), action] = Q_s_a + alpha*(reward + gamma* Q_max - Q_s_a)
-    return Q_d
+    def update_Q_function(self,state, next_state, action, reward):
+        action_availability =  self.env.action_availability
+        # TODO change to generic implementation (regarding state_action_dimensions)
+        Q_temp = self.Q[int(next_state[0]),int(next_state[1]),int(next_state[2]),int(next_state[3]),:]
+        Q_next_state = copy.deepcopy(Q_temp)
+        Q_next_state[np.invert(action_availability)] = np.nan
+        max_arg_action = np.nanargmax(Q_next_state)
+        Q_max = Q_next_state[max_arg_action]
+        Q_s_a = self.Q[int(state[0]),int(state[1]),int(state[2]),int(state[3]), action]
+        self.Q[int(state[0]),int(state[1]),int(state[2]),int(state[3]), action] = Q_s_a + self.alpha*(reward + self.gamma* Q_max - Q_s_a)
+
 
 if __name__ == "__main__":
     # learning parameter
     gamma = 0.7
-    Q = np.zeros([10,10,10,10,8])
     env = DiscreteWavesGridWorld()
+    qLearning = QLearning(env)
     N = 1000
     
     for episode in range(0,N):
@@ -54,9 +59,9 @@ if __name__ == "__main__":
         i = 0
         cum_reward = 0    
         while not done:
-            action = chose_action(env, Q)
+            action = qLearning.chose_action()
             next_state, reward, done, _ = env.step(action)
-            Q = update_Q_function(Q, state, next_state, action, reward, env.action_availability)
+            qLearning.update_Q_function(state, next_state, action, reward)
             cum_reward += reward            
             i += 1
             state = next_state
