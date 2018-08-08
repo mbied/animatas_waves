@@ -23,13 +23,13 @@ class QLearning:
                 action_legit = self.env.action_availability[action]
                 
         else:
-            s = env.state
+            s = self.env.state
             #print(env.state)
             #print(s[0],s[1],s[2],s[3])
             Q_temp = self.Q[int(s[0]),int(s[1]),int(s[2]),int(s[3]),:] # TODO: change to generic implementation
             Q_fixed_s = copy.deepcopy(Q_temp)
             #insert NaN into not available actions
-            Q_fixed_s[np.invert(env.action_availability)] = np.nan
+            Q_fixed_s[np.invert(self.env.action_availability)] = np.nan
             action = np.nanargmax(Q_fixed_s)
             
         return action
@@ -47,8 +47,6 @@ class QLearning:
 
 
 if __name__ == "__main__":
-    # learning parameter
-    gamma = 0.7
     env = DiscreteWavesGridWorld()
     qLearning = QLearning(env)
     N = 1000
