@@ -38,7 +38,7 @@ class DiscreteWavesGridWorld(Env):
     reward_range = (-1, 1)
     spec = None
     discretization = 10
-    target_state = np.array([3, 5, 2, 6])
+    target_state = np.array([2, 3, 5, 7])
     #target_wave = np.array([[eval_wave(x,wave_params[0],wave_params[1]) 
                            # for x in np.linspace(0, 1, 1000)]
                            # for wave_params in target_state])

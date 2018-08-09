@@ -38,7 +38,7 @@ class PlotCanvas(FigureCanvas):
         ax.clear()
         ax.set_ylim([-10,10])
         ax.plot(x, data)
-        data = eval_wave(x, 3, 5) + eval_wave(x, 2, 6)
+        data = eval_wave(x, 2, 3) + eval_wave(x, 5, 7)
         ax.plot(x,data)
         #ax.plot(x, eval_wave(x, backend.observation[0], backend.observation[1]), 'g--')
         #ax.set_title('Scenario 2')
@@ -47,6 +47,10 @@ class PlotCanvas(FigureCanvas):
 class Form(QDialog):
     def __init__(self, qLearning, parent=None):
         super(Form, self).__init__(parent)
+        
+        #just for testing
+        self.guidance = [6, 6, 4, 6, 6, 4, 4, 6, 2, 0, 4, 2, 6, 0, 2, 4, 6]
+        self.i = 0
         
         self.qLearning = qLearning
         self.state = qLearning.env.state
@@ -60,7 +64,9 @@ class Form(QDialog):
         self.setLayout(layout)
         
     def btnstate(self):
-        action = qLearning.chose_action()
+        action = qLearning.chose_action(self.guidance[self.i])
+        #action = qLearning.chose_action()
+        self.i += 1
         print(action)
         next_state, reward, done, _ = qLearning.env.step(action)
         qLearning.update_Q_function(self.state, next_state, action, reward)
