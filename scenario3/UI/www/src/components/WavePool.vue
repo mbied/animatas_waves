@@ -5,7 +5,8 @@
 </template>
 
 <script>
-import { ContainerMixin, ElementMixin } from 'vue-slicksort';
+// eslint-disable-next-line
+import { ContainerMixin, ElementMixin } from 'vue-slicksort'
 
 export default {
   props: ['item'],

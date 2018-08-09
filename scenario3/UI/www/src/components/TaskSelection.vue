@@ -1,7 +1,10 @@
 <template>
   <div class="root">
-    <WavePool lockAxis="y" v-model="items">
+    <WavePool lockAxis="yx" axis="xy" v-model="items">
       <Wave v-for="(item, index) in items" :index="index" :key="index" :item="item"/>
+    </WavePool>
+    Some Random Text
+    <WavePool axis="xy" v-model="items" style="min-height:20px;">
     </WavePool>
   </div>
 </template>
@@ -9,17 +12,8 @@
 <script>
 import Wave from './Wave'
 import WavePool from './WavePool'
-
-import { ContainerMixin, ElementMixin } from 'vue-slicksort';
-
-const SortableList = {
-  mixins: [ContainerMixin],
-  template: `
-    <ul class="list">
-      <slot />
-    </ul>
-  `
-};
+// eslint-disable-next-line
+import { ContainerMixin, ElementMixin } from 'vue-slicksort'
 
 export default {
   name: 'TaskSelection',
@@ -38,6 +32,9 @@ export default {
         'Item 6',
         'Item 7',
         'Item 8'
+      ],
+      items2: [
+        'Item 19'
       ]
     }
   }
