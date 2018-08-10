@@ -15,6 +15,9 @@
     <hr />
     <div class="Feedback">
       <h3>Feedback</h3>
+      <md-button class="md-raised" v-on:click="administerFeedback(1)">Positive Feedback</md-button>
+      <md-button class="md-raised" v-on:click="administerFeedback(0)">Neutral Feedback</md-button>
+      <md-button class="md-raised" v-on:click="administerFeedback(-1)">Negative Feedback</md-button>
     </div>
     <hr />
     <div class="Guidance">
@@ -27,22 +30,54 @@
         </tr>
         <tr>
           <td rowspan=2>Amplitude</td>
-          <td><button v-on:click="updateAmplitude('wave1', 1)">Up</button></td>
-          <td><button v-on:click="updateAmplitude('wave2', 1)">Up</button></td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', 1)">
+              <i class="material-icons">keyboard_arrow_up</i>
+            </md-button>
+          </td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', 1)">
+              <i class="material-icons">keyboard_arrow_up</i>
+            </md-button>
+          </td>
         </tr>
         <tr>
-          <td><button v-on:click="updateAmplitude('wave1', -1)">Down</button></td>
-          <td><button v-on:click="updateAmplitude('wave2', -1)">Down</button></td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', -1)">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </md-button>
+          </td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', -1)">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </md-button>
+          </td>
         </tr>
         <hr />
         <tr>
           <td rowspan=2>Frequency</td>
-          <td><button v-on:click="updateFrequency('wave1', 1)">Up</button></td>
-          <td><button v-on:click="updateFrequency('wave2', 1)">Up</button></td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', 1)">
+              <i class="material-icons">keyboard_arrow_up</i>
+            </md-button>
+          </td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', 1)">
+              <i class="material-icons">keyboard_arrow_up</i>
+            </md-button>
+          </td>
         </tr>
         <tr>
-          <td><button v-on:click="updateFrequency('wave1', -1)">Down</button></td>
-          <td><button v-on:click="updateFrequency('wave2', -1)">Down</button></td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', -1)">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </md-button>
+          </td>
+          <td>
+            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', -1)">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </md-button>
+          </td>
         </tr>
       </table>
     </div>
@@ -88,6 +123,9 @@ export default {
     },
     updateFrequency (wave, value) {
       this.game_state[wave].frequency += value
+    },
+    administerFeedback (value) {
+      console.log('Feedback: ' + value.toString())
     }
   },
   computed: {
@@ -106,7 +144,7 @@ export default {
     },
     SummedWave_options: function () {
       return {
-        target: this.time.map(x => this.game_state.target.amplitude * Math.sin(this.game_state.target.frequency * x)),
+        target: this.time.map(x => this.game_state.target.amplitude * Math.sin(this.game_state.target.frequency * x))
       }
     }
   }
@@ -121,7 +159,7 @@ export default {
 .graph {
   display: inline-block;
   vertical-align: bottom;
-  width: 10;
+  width: 1;
   max-width: 30%;
 }
 #WaveSum {

@@ -12,19 +12,23 @@ export default {
       var dataset = [{
         label: 'Current',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        borderColor: 'rgba(255, 99, 132, 1)',
         data: this.y
       }]
       if (this.options.hasOwnProperty('target')) {
         dataset.push({
           label: 'Target',
-          backgroundColor: 'rgba(255, 0, 132, 0.4)',
-          data: this.options.target
+          backgroundColor: 'rgba(255, 255, 26, 0.4)',
+          borderColor: 'rgba(244, 158, 66, 1)',
+          data: this.options.target,
+          borderDash: [5, 5]
         })
       }
       if (this.options.previous === true) {
         dataset.push({
           label: 'Previous',
           backgroundColor: 'rgba(255, 0, 132, 0.4)',
+          borderColor: 'rgba(255, 0, 132, 0.6)',
           data: []
         })
       }
