@@ -16,7 +16,7 @@
     <div class="Feedback">
       <h3>Feedback</h3>
       <md-button class="md-raised" v-on:click="administerFeedback(1)">Positive Feedback</md-button>
-      <md-button class="md-raised" v-on:click="administerFeedback(0)">Neumd-table-rowal Feedback</md-button>
+      <md-button class="md-raised" v-on:click="administerFeedback(0)">Neutral Feedback</md-button>
       <md-button class="md-raised" v-on:click="administerFeedback(-1)">Negative Feedback</md-button>
     </div>
     <hr />
