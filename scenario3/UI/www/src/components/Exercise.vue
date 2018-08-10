@@ -16,70 +16,73 @@
     <div class="Feedback">
       <h3>Feedback</h3>
       <md-button class="md-raised" v-on:click="administerFeedback(1)">Positive Feedback</md-button>
-      <md-button class="md-raised" v-on:click="administerFeedback(0)">Neutral Feedback</md-button>
+      <md-button class="md-raised" v-on:click="administerFeedback(0)">Neumd-table-rowal Feedback</md-button>
       <md-button class="md-raised" v-on:click="administerFeedback(-1)">Negative Feedback</md-button>
     </div>
     <hr />
     <div class="Guidance">
       <h3>Guidance</h3>
-      <table>
-        <tr>
-          <th></th>
-          <th>Wave1</th>
-          <th>Wave2</th>
-        </tr>
-        <tr>
-          <td rowspan=2>Amplitude</td>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', 1)">
-              <i class="material-icons">keyboard_arrow_up</i>
-            </md-button>
-          </td>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', 1)">
-              <i class="material-icons">keyboard_arrow_up</i>
-            </md-button>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', -1)">
-              <i class="material-icons">keyboard_arrow_down</i>
-            </md-button>
-          </td>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', -1)">
-              <i class="material-icons">keyboard_arrow_down</i>
-            </md-button>
-          </td>
-        </tr>
-        <hr />
-        <tr>
-          <td rowspan=2>Frequency</td>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', 1)">
-              <i class="material-icons">keyboard_arrow_up</i>
-            </md-button>
-          </td>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', 1)">
-              <i class="material-icons">keyboard_arrow_up</i>
-            </md-button>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', -1)">
-              <i class="material-icons">keyboard_arrow_down</i>
-            </md-button>
-          </td>
-          <td>
-            <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', -1)">
-              <i class="material-icons">keyboard_arrow_down</i>
-            </md-button>
-          </td>
-        </tr>
-      </table>
+      <md-table>
+        <md-table-row>
+          <md-table-head></md-table-head>
+          <md-table-head>Wave1</md-table-head>
+          <md-table-head>Wave2</md-table-head>
+        </md-table-row>
+        <md-table-row>
+          <md-table-cell>Amplitude</md-table-cell>
+          <md-table-cell>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', 1)">
+                <i class="material-icons">keyboard_arrow_up</i>
+              </md-button>
+            </div>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', -1)">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </md-button>
+            </div>
+          </md-table-cell>
+          <md-table-cell>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', 1)">
+                <i class="material-icons">keyboard_arrow_up</i>
+              </md-button>
+            </div>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', -1)">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </md-button>
+            </div>
+          </md-table-cell>
+        </md-table-row>
+        <md-table-row>
+          <md-table-cell>Frequency</md-table-cell>
+          <md-table-cell>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', 1)">
+                <i class="material-icons">keyboard_arrow_up</i>
+              </md-button>
+            </div>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', -1)">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </md-button>
+            </div>
+          </md-table-cell>
+          <md-table-cell>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', 1)">
+                <i class="material-icons">keyboard_arrow_up</i>
+              </md-button>
+            </div>
+            <div>
+              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', -1)">
+                <i class="material-icons">keyboard_arrow_down</i>
+              </md-button>
+            </div>
+          </md-table-cell>
+        </md-table-row>
+      </md-table>
     </div>
   </div>
 </template>
