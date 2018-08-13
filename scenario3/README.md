@@ -10,7 +10,7 @@ uniform explanation as to why humans prefer to give positive reinforcement to ro
 
 ## Getting Started
 
-To run the development version of this task you will need `npm` and `python`.
+To run the development version of this task you will need [`npm`](https://www.npmjs.com/get-npm) and [`python`](https://www.python.org/).
 
 First install the web UI's dependencies and launch a development web server:
 
