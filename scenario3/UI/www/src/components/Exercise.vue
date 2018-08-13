@@ -88,6 +88,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import linspace from 'linspace'
 import WaveCard from './WaveCard'
 
@@ -122,13 +123,54 @@ export default {
   },
   methods: {
     updateAmplitude (wave, value) {
-      this.game_state[wave].amplitude += value
+      var self = this
+      var guidanceData = {}
+      guidanceData[wave] = {amplitude: value}
+      axios.get('/api/feedback',
+        {
+          params: {
+            feedback: 0,
+            guidance: guidanceData
+          }
+        })
+        .then(function (response) {
+          var data = response.data
+          console.log(data)
+          self.game_state.wave1 = data.wave1
+          self.game_state.wave2 = data.wave2
+        })
     },
     updateFrequency (wave, value) {
-      this.game_state[wave].frequency += value
+      var self = this
+      var guidanceData = {}
+      guidanceData[wave] = {frequency: value}
+      axios.get('/api/feedback',
+        {
+          params: {
+            feedback: 0,
+            guidance: guidanceData
+          }
+        })
+        .then(function (response) {
+          var data = response.data
+          console.log(data)
+          self.game_state.wave1 = data.wave1
+          self.game_state.wave2 = data.wave2
+        })
     },
     administerFeedback (value) {
-      console.log('Feedback: ' + value.toString())
+      var self = this
+      axios.get('/api/feedback',
+        {
+          params: {
+            feedback: value
+          }
+        })
+        .then(function (response) {
+          var data = response.data
+          self.game_state.wave1 = data.wave1
+          self.game_state.wave2 = data.wave2
+        })
     }
   },
   computed: {
