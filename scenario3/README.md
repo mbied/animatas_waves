@@ -16,14 +16,14 @@ First install the web UI's dependencies and launch a development web server:
 
     cd UI/www
     npm install
-    npm run development
+    npm run dev
 
 Then, in a new terminal, install the API dependencies and launch the development flask server:
 
     cd api
     pip install -r Requirements.txt
     export FLASK_APP=app.py
-    export FLASK_ENV=dev
+    export FLASK_ENV=development
     flask run
 
 Now the app should be available at http://localhost:5000/#/exercise .
