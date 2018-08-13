@@ -3,7 +3,7 @@ import { Line } from 'vue-chartjs'
 
 export default {
   extends: Line,
-  props: ['x', 'y', 'options'],
+  props: ['x', 'y', 'options', 'target'],
   mounted () {
     this.renderLineChart()
   },
@@ -15,12 +15,12 @@ export default {
         borderColor: 'rgba(255, 99, 132, 1)',
         data: this.y
       }]
-      if (this.options.hasOwnProperty('target')) {
+      if (this.target) {
         dataset.push({
           label: 'Target',
           backgroundColor: 'rgba(255, 255, 26, 0.4)',
           borderColor: 'rgba(244, 158, 66, 1)',
-          data: this.options.target,
+          data: this.target,
           borderDash: [5, 5]
         })
       }
@@ -55,6 +55,12 @@ export default {
         dataArray[dataArray.length - 1].data = this.$data._chart.data.datasets[0].data
       }
       dataArray[0].data = this.y
+      this.$data._chart.update()
+    },
+    target: function () {
+      var dataArray = this.$data._chart.data.datasets
+
+      dataArray[1].data = this.target
       this.$data._chart.update()
     }
   }

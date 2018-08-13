@@ -6,7 +6,7 @@
         <WaveCard ref="Wave1" :x="x_labels" :options="wave1_options" :y="wave1"></WaveCard>
       </div>
       <div id="WaveSum" class="graph">
-        <WaveCard ref="SummedWaves" :x="x_labels" :y="SummedWave" :options="SummedWave_options"></WaveCard>
+        <WaveCard ref="SummedWaves" :x="x_labels" :y="SummedWave" :target="target" :options="{}"></WaveCard>
       </div>
       <div class="graph">
         <WaveCard ref="Wave2" :x="x_labels" :options="wave2_options" :y="wave2"></WaveCard>
@@ -185,11 +185,15 @@ export default {
     x_labels: function () {
       return this.time.map(x => Math.round(x * 100) / 100)
     },
-    SummedWave_options: function () {
-      return {
-        target: this.time.map(x => this.game_state.target.amplitude * Math.sin(this.game_state.target.frequency * x))
-      }
+    target: function () {
+      return this.time.map(x => this.game_state.target.amplitude * Math.sin(this.game_state.target.frequency * x))
     }
+  },
+  mounted () {
+    var self = this
+
+    axios.get('/api/getGoal')
+      .then(response => (self.game_state.target = response.data.target))
   }
 }
 </script>
