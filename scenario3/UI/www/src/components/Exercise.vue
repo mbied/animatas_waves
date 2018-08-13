@@ -135,7 +135,6 @@ export default {
         })
         .then(function (response) {
           var data = response.data
-          console.log(data)
           self.game_state.wave1 = data.wave1
           self.game_state.wave2 = data.wave2
         })
@@ -153,7 +152,6 @@ export default {
         })
         .then(function (response) {
           var data = response.data
-          console.log(data)
           self.game_state.wave1 = data.wave1
           self.game_state.wave2 = data.wave2
         })
