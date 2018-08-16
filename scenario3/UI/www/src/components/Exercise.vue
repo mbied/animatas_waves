@@ -1,15 +1,15 @@
 <template>
   <div>
+    <h1>Exercise</h1>
     <div class="StateDisplay">
-      <h3>Current State</h3>
-        <div class="graph">
-        <WaveCard ref="Wave1" :x="x_labels" :options="wave1_options" :y="wave1"></WaveCard>
+      <div class="graph">
+        <WaveCard ref="Wave1" header="Input Wave 1" :y="game_state.wave1" :hasHistory="true"></WaveCard>
       </div>
       <div id="WaveSum" class="graph">
-        <WaveCard ref="SummedWaves" :x="x_labels" :y="SummedWave" :target="target" :options="{}"></WaveCard>
+        <WaveCard ref="SummedWaves" header="Combined Waves" :y="game_state.wave1" :y2="game_state.wave2" :target="game_state.target"></WaveCard>
       </div>
       <div class="graph">
-        <WaveCard ref="Wave2" :x="x_labels" :options="wave2_options" :y="wave2"></WaveCard>
+        <WaveCard ref="Wave2" header="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
       </div>
     </div>
     <hr />
@@ -89,7 +89,7 @@
 
 <script>
 import axios from 'axios'
-import linspace from 'linspace'
+import firebase from 'firebase'
 import WaveCard from './WaveCard'
 
 export default {
@@ -98,7 +98,6 @@ export default {
   },
   data () {
     return {
-      time: linspace(0, 2 * Math.PI, 20),
       wave1_options: {
         previous: true
       },
@@ -171,45 +170,24 @@ export default {
         })
     }
   },
-  computed: {
-    wave1: function () {
-      return this.time.map(x => this.game_state.wave1.amplitude * Math.sin(this.game_state.wave1.frequency * x))
-    },
-    wave2: function () {
-      return this.time.map(x => this.game_state.wave2.amplitude * Math.sin(this.game_state.wave2.frequency * x))
-    },
-    SummedWave: function () {
-      return this.time.map(x => this.game_state.wave1.amplitude * Math.sin(this.game_state.wave1.frequency * x) +
-                                     this.game_state.wave2.amplitude * Math.sin(this.game_state.wave2.frequency * x))
-    },
-    x_labels: function () {
-      return this.time.map(x => Math.round(x * 100) / 100)
-    },
-    target: function () {
-      return this.time.map(x => this.game_state.target.amplitude * Math.sin(this.game_state.target.frequency * x))
-    }
-  },
   mounted () {
     var self = this
 
     axios.get('/api/getGoal')
       .then(response => (self.game_state.target = response.data.target))
+
+    console.log(firebase.auth().currentUser.uid)
   }
 }
 </script>
 
 <style>
-.StateDisplay {
-  display: table-cell;
-}
-
 .graph {
   display: inline-block;
   vertical-align: bottom;
-  width: 1;
-  max-width: 30%;
+  width: 25%;
 }
 #WaveSum {
-  max-width: 40%;
+  width: 40%;
 }
 </style>

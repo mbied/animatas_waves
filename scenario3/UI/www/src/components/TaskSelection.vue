@@ -1,42 +1,91 @@
 <template>
   <div class="root">
-    <WavePool lockAxis="yx" axis="xy" v-model="items">
-      <Wave v-for="(item, index) in items" :index="index" :key="index" :item="item"/>
-    </WavePool>
-    Some Random Text
-    <WavePool axis="xy" v-model="items" style="min-height:20px;">
-    </WavePool>
+    <router-link to="/Exercise" tag="button">Go To Exercise</router-link>
+    <draggable id="wave1" class="wave" v-model="wave1" :options="{group:'people'}" @start="drag=true" @end="drag=false" :move="this.check_movement">
+      <div v-for="element in wave1" :key="element.id">{{element.name}}</div>
+    </draggable>
+    <hr />
+    <draggable id="wave2" class="wave" v-model="wave2" :options="{group:'people'}" @start="drag=true" @end="drag=false" :move="this.check_movement">
+      <div v-for="element in wave2" :key="element.id">{{element.name}}</div>
+    </draggable>
+    <hr />
+      <draggable v-model="myArray" :options="{group:'people'}" @start="drag=true" @end="drag=false" :move="this.check_movement">
+        <div v-for="element in myArray" :key="element.id">
+          <WaveCard></WaveCard>
+        </div>
+      </draggable>
   </div>
 </template>
 
 <script>
-import Wave from './Wave'
-import WavePool from './WavePool'
-// eslint-disable-next-line
-import { ContainerMixin, ElementMixin } from 'vue-slicksort'
+import draggable from 'vuedraggable'
+import WaveCard from './WaveCard'
 
 export default {
   name: 'TaskSelection',
   components: {
-    Wave,
-    WavePool
+    draggable,
+    WaveCard
   },
   data () {
     return {
-      items: [
-        'Item 1',
-        'Item 2',
-        'Item 3',
-        'Item 4',
-        'Item 5',
-        'Item 6',
-        'Item 7',
-        'Item 8'
-      ],
-      items2: [
-        'Item 19'
+      wave1: [],
+      wave2: [],
+      myArray: [
+        {
+          key: 1,
+          data: {
+            amplitude: 1,
+            frequency: 1
+          }
+        },
+        {
+          key: 2,
+          data: {
+            amplitude: 1,
+            frequency: 1
+          }
+        },
+        {
+          key: 3,
+          data: {
+            amplitude: 1,
+            frequency: 1
+          }
+        },
+        {
+          key: 4,
+          data: {
+            amplitude: 1,
+            frequency: 1
+          }
+        },
+        {
+          key: 5,
+          data: {
+            amplitude: 1,
+            frequency: 1
+          }
+        }
       ]
+    }
+  },
+  methods: {
+    check_movement: function (event, originalEvent) {
+      if (event.to.id === 'wave1' && this.wave1.length > 0) {
+        return false
+      } else if (event.to.id === 'wave2' && this.wave2.length > 0) {
+        return false
+      } else {
+        return true
+      }
     }
   }
 }
 </script>
+
+<style scoped>
+  .wave {
+    min-height: 50px;
+  }
+</style>
