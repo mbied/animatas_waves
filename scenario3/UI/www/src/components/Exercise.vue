@@ -3,13 +3,13 @@
     <h1>Exercise</h1>
     <div class="StateDisplay">
       <div class="graph">
-        <WaveCard ref="Wave1" header="Input Wave 1" :y="game_state.wave1" :hasHistory="true"></WaveCard>
+        <WaveCard ref="Wave1" title="Input Wave 1" :y="game_state.wave1" :hasHistory="true"></WaveCard>
       </div>
       <div id="WaveSum" class="graph">
-        <WaveCard ref="SummedWaves" header="Combined Waves" :y="game_state.wave1" :y2="game_state.wave2" :target="game_state.target"></WaveCard>
+        <WaveCard ref="SummedWaves" title="Combined Waves" :y="game_state.wave1" :y2="game_state.wave2" :target="game_state.target"></WaveCard>
       </div>
       <div class="graph">
-        <WaveCard ref="Wave2" header="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
+        <WaveCard ref="Wave2" title="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
       </div>
     </div>
     <hr />
