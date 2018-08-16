@@ -2,7 +2,10 @@
   <div>
     <h3>Welcome to Scenario 3.</h3>
     <p>{{welcome_msg}}</p>
-    <div><button v-on:click="get_user_id()">Get Token</button><router-link :disabled="!allow_continue" to="/Exercise" tag="button">Go To Exercise</router-link></div>
+    <div>
+      <button v-on:click="get_user_id()">Get Token</button>
+      <router-link :disabled="!allow_continue" to="/task-selection" tag="button">Select A Task</router-link>
+    </div>
   </div>
 </template>
 
