@@ -80,3 +80,12 @@ def get_goal():
 
     response = {'target': {'amplitude': 0.5 , 'frequency': 2}}
     return jsonify(response)
+
+@app.route('/api/setGoal')
+def set_goal():
+    try:
+        target = json.loads(request.values['target'])
+    except KeyError:
+        return "Failed to set a new target"
+    
+    return "Set new target"
