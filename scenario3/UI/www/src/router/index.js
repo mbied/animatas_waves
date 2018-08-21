@@ -23,7 +23,7 @@ let router = new Router({
       }
     },
     {
-      path: '/exercise',
+      path: '/exercise/:task_id',
       name: 'Exercise',
       component: Exercise,
       meta: {
@@ -35,7 +35,6 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.auth)) {
-    console.log('Requires login')
     firebase.auth().onAuthStateChanged(function (user) {
       if (!user) {
         console.log('Authenticated')
@@ -43,7 +42,6 @@ router.beforeEach((to, from, next) => {
           path: '/'
         })
       } else {
-        console.log('Auth succsess')
         next()
       }
     })
