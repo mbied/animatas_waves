@@ -21,7 +21,7 @@
           </md-card>
         </div>
       </div>
-      <md-button class="md-raised md-primary" v-on:click="create_exercise">Create</md-button>
+      <md-button class="md-raised md-primary" :disabled="!allow_creation" v-on:click="create_exercise">Create</md-button>
     </div>
     <div>
       <p>Drag'n'Drop waves from here into the two slots above.</p>
@@ -40,10 +40,6 @@ import draggable from 'vuedraggable'
 import WaveCard from './WaveCard'
 import WavePlot from './WavePlot'
 
-// var database = firebase.FirebaseDatabase.getInstance()
-// var ref = database.getReference('server/saving-data/fireblog')
-
-
 export default {
   name: 'TaskSelection',
   components: {
@@ -56,50 +52,9 @@ export default {
       uid: '',
       wave1: [],
       wave2: [],
-      BaseWaves: [
-        {
-          key: 1,
-          data: {
-            amplitude: 1,
-            frequency: 1
-          }
-        },
-        {
-          key: 2,
-          data: {
-            amplitude: 1,
-            frequency: 2
-          }
-        },
-        {
-          key: 3,
-          data: {
-            amplitude: 1,
-            frequency: 3
-          }
-        },
-        {
-          key: 4,
-          data: {
-            amplitude: 1,
-            frequency: 4
-          }
-        },
-        {
-          key: 5,
-          data: {
-            amplitude: 1,
-            frequency: 5
-          }
-        },
-        {
-          key: 6,
-          data: {
-            amplitude: 1,
-            frequency: 6
-          }
-        }
-      ]
+      BaseWaves: [],
+      foobar: 0,
+      common_storage: firebase.database().ref('shared_data/')
     }
   },
   methods: {
@@ -113,7 +68,33 @@ export default {
       }
     },
     create_exercise: function (event) {
-      this.$router.push('/Exercise')
+      let key = this.user_storage.push().key
+      let taskStorage = this.user_storage.child(key)
+
+      taskStorage.child('target').child('wave1').set(this.wave1[0].data)
+      taskStorage.child('target').child('wave2').set(this.wave2[0].data)
+
+      this.$router.push({name: 'Exercise', params: {task_id: key}})
+    }
+  },
+  computed: {
+    user_storage: function () {
+      return firebase.database().ref('user_data/' + this.uid)
+    },
+    allow_creation: function () {
+      if (!this.uid) {
+        return false
+      }
+
+      if (this.wave1.length !== 1) {
+        return false
+      }
+
+      if (this.wave2.length !== 1) {
+        return false
+      }
+
+      return true
     }
   },
   created () {
@@ -125,9 +106,17 @@ export default {
     }
     firebase.auth().onAuthStateChanged(OnAuth)
 
-    var data = firebase.database().ref('test')
-    data.set('foo', 'bar')
-    //var ref = database.getReference('server/saving-data/fireblog')
+    function OnBaseWaveReceived (snap) {
+      let content = snap.val()
+      for (let key in content) {
+        self.BaseWaves.push({
+          key: key,
+          data: content[key]
+        })
+      }
+    }
+    var baseWaveLocation = this.common_storage.child('base_waves')
+    baseWaveLocation.once('value').then(OnBaseWaveReceived)
   }
 }
 </script>

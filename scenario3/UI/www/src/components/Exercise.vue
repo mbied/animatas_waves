@@ -6,7 +6,7 @@
         <WaveCard ref="Wave1" title="Input Wave 1" :y="game_state.wave1" :hasHistory="true"></WaveCard>
       </div>
       <div id="WaveSum" class="graph">
-        <WaveCard ref="SummedWaves" title="Combined Waves" :y="game_state.wave1" :y2="game_state.wave2" :target="game_state.target"></WaveCard>
+        <WaveCard ref="SummedWaves" title="Combined Waves" :y="game_state.wave1" :y2="game_state.wave2" :target="target"></WaveCard>
       </div>
       <div class="graph">
         <WaveCard ref="Wave2" title="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
@@ -98,6 +98,8 @@ export default {
   },
   data () {
     return {
+      uid: '',
+      task_id: '',
       wave1_options: {
         previous: true
       },
@@ -112,8 +114,14 @@ export default {
         wave2: {
           amplitude: 1,
           frequency: 1
+        }
+      },
+      target: {
+        wave1: {
+          amplitude: 1,
+          frequency: 1
         },
-        target: {
+        wave2: {
           amplitude: 1,
           frequency: 1
         }
@@ -170,13 +178,36 @@ export default {
         })
     }
   },
+  computed: {
+    user_storage: function () {
+      return firebase.database().ref('user_data/' + this.uid)
+    },
+    task_data: function () {
+      return this.user_storage.child(this.task_id)
+    }
+  },
   mounted () {
     var self = this
+
+    function getGoal (snap) {
+      self.target = snap.val()
+    }
 
     axios.get('/api/getGoal')
       .then(response => (self.game_state.target = response.data.target))
 
-    console.log(firebase.auth().currentUser.uid)
+    function OnAuth (user) {
+      if (user) {
+        self.uid = user.uid
+        let dataLocation = firebase.database().ref('user_data')
+          .child(user.uid).child(self.task_id)
+        dataLocation.child('target').once('value').then(getGoal)
+      }
+    }
+    firebase.auth().onAuthStateChanged(OnAuth)
+  },
+  created () {
+    this.task_id = this.$route.params.task_id
   }
 }
 </script>

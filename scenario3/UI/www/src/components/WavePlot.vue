@@ -73,7 +73,9 @@ export default {
     },
     target_data: function () {
       if (this.target) {
-        return this.time.map(t => this.target.amplitude * Math.sin(this.target.frequency * t))
+        var y1 = this.time.map(t => this.target.wave1.amplitude * Math.sin(this.target.wave1.frequency * t))
+        var y2 = this.time.map(t => this.target.wave2.amplitude * Math.sin(this.target.wave2.frequency * t))
+        return this.time.map((t, idx) => y1[idx] + y2[idx])
       } else {
         return []
       }
