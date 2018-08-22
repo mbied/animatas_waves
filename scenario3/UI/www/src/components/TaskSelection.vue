@@ -71,6 +71,9 @@ export default {
       let key = this.user_storage.push().key
       let taskStorage = this.user_storage.child(key)
 
+      taskStorage.child('wave1').set({amplitude: 1, frequency: 1})
+      taskStorage.child('wave2').set({amplitude: 1, frequency: 10})
+
       taskStorage.child('target').child('wave1').set(this.wave1[0].data)
       taskStorage.child('target').child('wave2').set(this.wave2[0].data)
 

@@ -99,13 +99,8 @@ export default {
   data () {
     return {
       uid: '',
+      id_token: '',
       task_id: '',
-      wave1_options: {
-        previous: true
-      },
-      wave2_options: {
-        previous: true
-      },
       game_state: {
         wave1: {
           amplitude: 1,
@@ -135,6 +130,10 @@ export default {
       guidanceData[wave] = {amplitude: value}
       axios.get('/api/feedback',
         {
+          headers: {
+            'Authorization': this.id_token,
+            'Task': this.task_id
+          },
           params: {
             feedback: 0,
             guidance: guidanceData
@@ -152,6 +151,10 @@ export default {
       guidanceData[wave] = {frequency: value}
       axios.get('/api/feedback',
         {
+          headers: {
+            'Authorization': this.id_token,
+            'Task': this.task_id
+          },
           params: {
             feedback: 0,
             guidance: guidanceData
@@ -167,6 +170,10 @@ export default {
       var self = this
       axios.get('/api/feedback',
         {
+          headers: {
+            'Authorization': this.id_token,
+            'Task': this.task_id
+          },
           params: {
             feedback: value
           }
@@ -193,18 +200,53 @@ export default {
       self.target = snap.val()
     }
 
-    axios.get('/api/getGoal')
-      .then(response => (self.game_state.target = response.data.target))
+    function getWave (snap, wave) {
+      self.game_state[wave] = snap.val()
+    }
 
     function OnAuth (user) {
       if (user) {
         self.uid = user.uid
+        user.getIdToken().then(token => (self.id_token = token))
+
         let dataLocation = firebase.database().ref('user_data')
           .child(user.uid).child(self.task_id)
         dataLocation.child('target').once('value').then(getGoal)
+        dataLocation.child('wave1').on('value', (snap) => getWave(snap, 'wave1'))
+        dataLocation.child('wave2').on('value', (snap) => getWave(snap, 'wave2'))
       }
     }
     firebase.auth().onAuthStateChanged(OnAuth)
+  },
+  watch: {
+    id_token: function () {
+      if (!this.task_id) {
+        return
+      }
+
+      var self = this
+      axios.get('/api/getGoal', {
+        headers: {
+          'Authorization': this.id_token,
+          'Task': this.task_id
+        }
+      })
+        .then(response => (self.game_state.target = response.data.target))
+    },
+    task_id: function () {
+      if (!this.id_token) {
+        return
+      }
+
+      var self = this
+      axios.get('/api/getGoal', {
+        headers: {
+          'Authorization': this.id_token,
+          'Task': this.task_id
+        }
+      })
+        .then(response => (self.game_state.target = response.data.target))
+    }
   },
   created () {
     this.task_id = this.$route.params.task_id
