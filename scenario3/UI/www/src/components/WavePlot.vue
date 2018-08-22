@@ -60,7 +60,7 @@ export default {
     },
     y2_data: function () {
       if (this.y2) {
-        return this.time.map(t => this.y.amplitude * Math.sin(this.y.frequency * t))
+        return this.time.map(t => this.y2.amplitude * Math.sin(this.y2.frequency * t))
       } else {
         return this.time.map(t => 0)
       }
