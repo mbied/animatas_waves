@@ -101,31 +101,6 @@ def provide_feedback(user_id=''):
 
     return jsonify(response)
 
-@app.route('/api/getGoal')
-@login_required
-def get_goal(user_id=""):
-    """Returns the parameters of the current goal wave
-    
-    Example response:
-        
-        "target": {
-            'wave1': {
-                'amplitude': 1,
-                'frequency': 1
-            },
-            'wave2': {
-                'amplitude': 1,
-                'frequency': 1
-            }
-        }  
-    """
-
-    task_id = request.headers.get("Task")
-    root = db.reference('/user_data/{0}/{1}'.format(user_id, task_id),default_app)
-
-    response = {"target": root.child('target').get()}
-    return jsonify(response)
-
 @app.route('/api/setGoal')
 def set_goal():
     try:
