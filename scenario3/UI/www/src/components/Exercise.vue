@@ -125,7 +125,6 @@ export default {
   },
   methods: {
     updateAmplitude (wave, value) {
-      var self = this
       var guidanceData = {}
       guidanceData[wave] = {amplitude: value}
       axios.get('/api/feedback',
@@ -139,14 +138,8 @@ export default {
             guidance: guidanceData
           }
         })
-        .then(function (response) {
-          var data = response.data
-          self.game_state.wave1 = data.wave1
-          self.game_state.wave2 = data.wave2
-        })
     },
     updateFrequency (wave, value) {
-      var self = this
       var guidanceData = {}
       guidanceData[wave] = {frequency: value}
       axios.get('/api/feedback',
@@ -160,14 +153,8 @@ export default {
             guidance: guidanceData
           }
         })
-        .then(function (response) {
-          var data = response.data
-          self.game_state.wave1 = data.wave1
-          self.game_state.wave2 = data.wave2
-        })
     },
     administerFeedback (value) {
-      var self = this
       axios.get('/api/feedback',
         {
           headers: {
@@ -177,11 +164,6 @@ export default {
           params: {
             feedback: value
           }
-        })
-        .then(function (response) {
-          var data = response.data
-          self.game_state.wave1 = data.wave1
-          self.game_state.wave2 = data.wave2
         })
     }
   },
@@ -201,7 +183,9 @@ export default {
     }
 
     function getWave (snap, wave) {
-      self.game_state[wave] = snap.val()
+      var data = snap.val()
+      self.game_state[wave].amplitude = data.amplitude
+      self.game_state[wave].frequency = data.frequency
     }
 
     function OnAuth (user) {
@@ -217,36 +201,6 @@ export default {
       }
     }
     firebase.auth().onAuthStateChanged(OnAuth)
-  },
-  watch: {
-    id_token: function () {
-      if (!this.task_id) {
-        return
-      }
-
-      var self = this
-      axios.get('/api/getGoal', {
-        headers: {
-          'Authorization': this.id_token,
-          'Task': this.task_id
-        }
-      })
-        .then(response => (self.game_state.target = response.data.target))
-    },
-    task_id: function () {
-      if (!this.id_token) {
-        return
-      }
-
-      var self = this
-      axios.get('/api/getGoal', {
-        headers: {
-          'Authorization': this.id_token,
-          'Task': this.task_id
-        }
-      })
-        .then(response => (self.game_state.target = response.data.target))
-    }
   },
   created () {
     this.task_id = this.$route.params.task_id
