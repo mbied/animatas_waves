@@ -100,12 +100,3 @@ def provide_feedback(user_id=''):
     }
 
     return jsonify(response)
-
-@app.route('/api/setGoal')
-def set_goal():
-    try:
-        target = json.loads(request.values['target'])
-    except KeyError:
-        return "Failed to set a new target"
-    
-    return "Set new target"
