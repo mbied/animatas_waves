@@ -7,7 +7,7 @@ import sys
 
 file_dir = "/home/manuel/Documents/WAVE/animatas_waves/scenario3/api/"
 sys.path.append(file_dir)
-
+#testcommit
 #print("Path at terminal when executing this file")
 #print(os.getcwd() + "\n")
 
