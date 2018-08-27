@@ -1,15 +1,15 @@
 <template>
   <div>
+    <h1>Exercise</h1>
     <div class="StateDisplay">
-      <h3>Current State</h3>
-        <div class="graph">
-        <WaveCard ref="Wave1" :x="x_labels" :options="wave1_options" :y="wave1"></WaveCard>
+      <div class="graph">
+        <WaveCard ref="Wave1" title="Input Wave 1" :y="game_state.wave1" :hasHistory="true"></WaveCard>
       </div>
       <div id="WaveSum" class="graph">
-        <WaveCard ref="SummedWaves" :x="x_labels" :y="SummedWave" :target="target" :options="{}"></WaveCard>
+        <WaveCard ref="SummedWaves" title="Combined Waves" :y="game_state.wave1" :y2="game_state.wave2" :target="target"></WaveCard>
       </div>
       <div class="graph">
-        <WaveCard ref="Wave2" :x="x_labels" :options="wave2_options" :y="wave2"></WaveCard>
+        <WaveCard ref="Wave2" title="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
       </div>
     </div>
     <hr />
@@ -89,7 +89,7 @@
 
 <script>
 import axios from 'axios'
-import linspace from 'linspace'
+import firebase from 'firebase'
 import WaveCard from './WaveCard'
 
 export default {
@@ -98,13 +98,9 @@ export default {
   },
   data () {
     return {
-      time: linspace(0, 2 * Math.PI, 20),
-      wave1_options: {
-        previous: true
-      },
-      wave2_options: {
-        previous: true
-      },
+      uid: '',
+      id_token: '',
+      task_id: '',
       game_state: {
         wave1: {
           amplitude: 1,
@@ -113,8 +109,14 @@ export default {
         wave2: {
           amplitude: 1,
           frequency: 1
+        }
+      },
+      target: {
+        wave1: {
+          amplitude: 1,
+          frequency: 1
         },
-        target: {
+        wave2: {
           amplitude: 1,
           frequency: 1
         }
@@ -123,93 +125,96 @@ export default {
   },
   methods: {
     updateAmplitude (wave, value) {
-      var self = this
       var guidanceData = {}
       guidanceData[wave] = {amplitude: value}
       axios.get('/api/feedback',
         {
+          headers: {
+            'Authorization': this.id_token,
+            'Task': this.task_id
+          },
           params: {
             feedback: 0,
             guidance: guidanceData
           }
         })
-        .then(function (response) {
-          var data = response.data
-          self.game_state.wave1 = data.wave1
-          self.game_state.wave2 = data.wave2
-        })
     },
     updateFrequency (wave, value) {
-      var self = this
       var guidanceData = {}
       guidanceData[wave] = {frequency: value}
       axios.get('/api/feedback',
         {
+          headers: {
+            'Authorization': this.id_token,
+            'Task': this.task_id
+          },
           params: {
             feedback: 0,
             guidance: guidanceData
           }
         })
-        .then(function (response) {
-          var data = response.data
-          self.game_state.wave1 = data.wave1
-          self.game_state.wave2 = data.wave2
-        })
     },
     administerFeedback (value) {
-      var self = this
       axios.get('/api/feedback',
         {
+          headers: {
+            'Authorization': this.id_token,
+            'Task': this.task_id
+          },
           params: {
             feedback: value
           }
         })
-        .then(function (response) {
-          var data = response.data
-          self.game_state.wave1 = data.wave1
-          self.game_state.wave2 = data.wave2
-        })
     }
   },
   computed: {
-    wave1: function () {
-      return this.time.map(x => this.game_state.wave1.amplitude * Math.sin(this.game_state.wave1.frequency * x))
+    user_storage: function () {
+      return firebase.database().ref('user_data/' + this.uid)
     },
-    wave2: function () {
-      return this.time.map(x => this.game_state.wave2.amplitude * Math.sin(this.game_state.wave2.frequency * x))
-    },
-    SummedWave: function () {
-      return this.time.map(x => this.game_state.wave1.amplitude * Math.sin(this.game_state.wave1.frequency * x) +
-                                     this.game_state.wave2.amplitude * Math.sin(this.game_state.wave2.frequency * x))
-    },
-    x_labels: function () {
-      return this.time.map(x => Math.round(x * 100) / 100)
-    },
-    target: function () {
-      return this.time.map(x => this.game_state.target.amplitude * Math.sin(this.game_state.target.frequency * x))
+    task_data: function () {
+      return this.user_storage.child(this.task_id)
     }
   },
   mounted () {
     var self = this
 
-    axios.get('/api/getGoal')
-      .then(response => (self.game_state.target = response.data.target))
+    function getGoal (snap) {
+      self.target = snap.val()
+    }
+
+    function getWave (snap, wave) {
+      var data = snap.val()
+      self.game_state[wave].amplitude = data.amplitude
+      self.game_state[wave].frequency = data.frequency
+    }
+
+    function OnAuth (user) {
+      if (user) {
+        self.uid = user.uid
+        user.getIdToken().then(token => (self.id_token = token))
+
+        let dataLocation = firebase.database().ref('user_data')
+          .child(user.uid).child(self.task_id)
+        dataLocation.child('target').once('value').then(getGoal)
+        dataLocation.child('wave1').on('value', (snap) => getWave(snap, 'wave1'))
+        dataLocation.child('wave2').on('value', (snap) => getWave(snap, 'wave2'))
+      }
+    }
+    firebase.auth().onAuthStateChanged(OnAuth)
+  },
+  created () {
+    this.task_id = this.$route.params.task_id
   }
 }
 </script>
 
 <style>
-.StateDisplay {
-  display: table-cell;
-}
-
 .graph {
   display: inline-block;
   vertical-align: bottom;
-  width: 1;
-  max-width: 30%;
+  width: 25%;
 }
 #WaveSum {
-  max-width: 40%;
+  width: 40%;
 }
 </style>

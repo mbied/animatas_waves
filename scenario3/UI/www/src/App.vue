@@ -21,7 +21,7 @@ firebase.initializeApp(config)
 
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
-    console.log('Hello, ' + user.uid)
+    // user has been here before
   } else {
     firebase.auth().signInAnonymously().catch(function (error) {
       console.log(error)
