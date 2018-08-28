@@ -10,7 +10,7 @@ export default {
   },
   data: function () {
     return {
-      time: linspace(0, 2 * Math.PI, 20)
+      time: linspace(0, 2 * Math.PI, 25000)
     }
   },
   methods: {

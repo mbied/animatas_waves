@@ -165,6 +165,8 @@ export default {
             feedback: value
           }
         })
+          .then(response => {console.log('test')})
+
     }
   },
   computed: {
