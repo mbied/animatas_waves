@@ -50,7 +50,7 @@ class DiscreteWavesGridWorld(Env):
         """
         super().__init__()
         self.num_sum = num_sum
-        self.state = np.zeros(2*num_sum, dtype=np.int64)         
+        self.state = np.ones(2*num_sum, dtype=np.int64)         
         
         
         # Set these in ALL subclasses

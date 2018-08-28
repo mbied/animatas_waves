@@ -168,24 +168,31 @@ def provide_feedback(user_id=''):
         guidance_action = dict()
 
 
-    print(encode_action(guidance_action))
+    #print(encode_action(guidance_action))
+    #logging.info('Test')
     #print(guidance_action.keys())
    # print(guidance_action, type(guidance_action))
-    action = encode_action(guidance_action)
+    encoded_guidance = encode_action(guidance_action)
+    action = qLearning.chose_action(encoded_guidance)
     next_state, reward, done, _ = env.step(action)
     print(next_state)
     response = {
         'wave1': {
-            #'amplitude': next_state[0],
-            #'frequency': next_state[1],
-            'amplitude': 5,
-            'frequency': 5,
+            'amplitude': next_state[0],
+            'frequency': next_state[1],
+
         },
         'wave2': {
             'amplitude': next_state[2],
             'frequency': next_state[3],
         }
     }
+        
+    wave1={'amplitude': next_state[0],'frequency': next_state[1]}        
+    wave2={'amplitude': next_state[2],'frequency': next_state[3]}
+    
+    session['task_data']['wave1'] = wave1        
+    session['task_data']['wave2'] = wave2
 
     return jsonify(response)
 
