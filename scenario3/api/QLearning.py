@@ -12,6 +12,15 @@ class QLearning:
         self.Q = np.zeros(state_action_dimensions) 
         self.env = env
         print("QLearning initiated.")
+        
+    def load_Q_table(self,file_path):
+        obj_text = codecs.open(file_path, 'r', encoding='utf-8').read()
+        Q_new = json.loads(obj_text)
+        self.Q = np.array(Q_new)
+        
+    def store_Q_table(self,file_path):
+        Q_new = Q.tolist() # nested lists with same data, indices
+        json.dump(Q_new, codecs.open(file_path, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4) ### this saves the array in .json format
     
     def chose_action(self, guidance_feedback=None):     
         if guidance_feedback == None:
