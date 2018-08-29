@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template, abort, session
 import requests
 import json
+import configparser
 
 import os
 import sys
@@ -28,9 +29,15 @@ sys.path.append(file_dir)
 from QLearning import QLearning
 from DiscreteWavesGridWorld import DiscreteWavesGridWorld
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+#if config['DEFAULT']['helloWorld'] == 'yes':
+#    print("Hello World")
+
 app = Flask(__name__)
 env = DiscreteWavesGridWorld()
 qLearning = QLearning(env)
+
 
 def encode_action(dict_guidance_action):
     action = 0
