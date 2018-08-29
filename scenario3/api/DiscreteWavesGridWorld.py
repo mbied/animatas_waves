@@ -37,20 +37,20 @@ class DiscreteWavesGridWorld(Env):
     metadata = {'render.modes': []}
     reward_range = (-1, 1)
     spec = None
-    discretization = 10
-    target_state = np.array([2, 3, 5, 7])
     #target_wave = np.array([[eval_wave(x,wave_params[0],wave_params[1]) 
                            # for x in np.linspace(0, 1, 1000)]
                            # for wave_params in target_state])
     
 
-    def __init__(self, num_sum=2):
+    def __init__(self, num_sum=2, target_state = np.array([2, 3, 5, 7]), discretization = 10):
         """
 
         """
         super().__init__()
+        self.target_state = target_state
         self.num_sum = num_sum
-        self.state = np.ones(2*num_sum, dtype=np.int64)         
+        self.state = np.ones(2*num_sum, dtype=np.int64)    
+        self.discretization = discretization
         
         
         # Set these in ALL subclasses
