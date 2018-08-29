@@ -12,77 +12,15 @@
         <WaveCard ref="Wave2" title="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
       </div>
     </div>
-    <hr />
-    <div class="Feedback">
-      <h3>Feedback</h3>
-      <md-button class="md-raised" v-on:click="administerFeedback(1)">Positive Feedback</md-button>
-      <md-button class="md-raised" v-on:click="administerFeedback(0)">Neutral Feedback</md-button>
-      <md-button class="md-raised" v-on:click="administerFeedback(-1)">Negative Feedback</md-button>
-    </div>
-    <hr />
-    <div class="Guidance">
-      <h3>Guidance</h3>
-      <md-table>
-        <md-table-row>
-          <md-table-head></md-table-head>
-          <md-table-head>Wave1</md-table-head>
-          <md-table-head>Wave2</md-table-head>
-        </md-table-row>
-        <md-table-row>
-          <md-table-cell>Amplitude</md-table-cell>
-          <md-table-cell>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', 1)">
-                <i class="material-icons">keyboard_arrow_up</i>
-              </md-button>
-            </div>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave1', -1)">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </md-button>
-            </div>
-          </md-table-cell>
-          <md-table-cell>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', 1)">
-                <i class="material-icons">keyboard_arrow_up</i>
-              </md-button>
-            </div>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateAmplitude('wave2', -1)">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </md-button>
-            </div>
-          </md-table-cell>
-        </md-table-row>
-        <md-table-row>
-          <md-table-cell>Frequency</md-table-cell>
-          <md-table-cell>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', 1)">
-                <i class="material-icons">keyboard_arrow_up</i>
-              </md-button>
-            </div>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave1', -1)">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </md-button>
-            </div>
-          </md-table-cell>
-          <md-table-cell>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', 1)">
-                <i class="material-icons">keyboard_arrow_up</i>
-              </md-button>
-            </div>
-            <div>
-              <md-button class="md-icon-button md-raised" v-on:click="updateFrequency('wave2', -1)">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </md-button>
-            </div>
-          </md-table-cell>
-        </md-table-row>
-      </md-table>
+    <div class="md-layout md-elevation-2">
+      <wave-guidance class="md-layout-item md-alignment-top-left" title="Wave 1" v-model="guidance_selected"></wave-guidance>
+      <wave-guidance class="md-layout-item md-alignment-top-right" title="Wave 2" v-model="guidance_selected"></wave-guidance>
+
+      <div id="Feedback" class="md-layout-item md-size-100">
+        <md-button class="md-raised" v-on:click="administerFeedback(1)">Positive Feedback</md-button>
+        <md-button class="md-raised" v-on:click="administerFeedback(0)">Neutral Feedback</md-button>
+        <md-button class="md-raised" v-on:click="administerFeedback(-1)">Negative Feedback</md-button>
+      </div>
     </div>
   </div>
 </template>
@@ -91,13 +29,16 @@
 import axios from 'axios'
 import firebase from 'firebase'
 import WaveCard from './WaveCard'
+import WaveGuidance from './WaveGuidance'
 
 export default {
   components: {
-    WaveCard
+    WaveCard,
+    WaveGuidance
   },
   data () {
     return {
+      guidance_selected: '',
       uid: '',
       id_token: '',
       task_id: '',
@@ -155,6 +96,39 @@ export default {
         })
     },
     administerFeedback (value) {
+      var guidanceData = {}
+      switch (this.guidance_selected) {
+        case 'Wave 1 - 1':
+          guidanceData = {'wave1': {'amplitude': 1}}
+          break
+        case 'Wave 1 - 2':
+          guidanceData = {'wave1': {'amplitude': -1}}
+          break
+        case 'Wave 1 - 3':
+          guidanceData = {'wave1': {'frequency': 1}}
+          break
+        case 'Wave 1 - 4':
+          guidanceData = {'wave1': {'frequency': -1}}
+          break
+
+        case 'Wave 2 - 1':
+          guidanceData = {'wave2': {'amplitude': 1}}
+          break
+        case 'Wave 2 - 2':
+          guidanceData = {'wave2': {'amplitude': -1}}
+          break
+        case 'Wave 2 - 3':
+          guidanceData = {'wave2': {'frequency': 1}}
+          break
+        case 'Wave 2 - 4':
+          guidanceData = {'wave2': {'frequency': -1}}
+          break
+
+        default:
+          guidanceData = {}
+      }
+      this.guidance_selected = ''
+
       axios.get('/api/feedback',
         {
           headers: {
@@ -162,7 +136,8 @@ export default {
             'Task': this.task_id
           },
           params: {
-            feedback: value
+            feedback: value,
+            guidance: guidanceData
           }
         })
     }
