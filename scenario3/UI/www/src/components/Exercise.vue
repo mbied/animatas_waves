@@ -12,7 +12,7 @@
         <WaveCard ref="Wave2" title="Input Wave 2" :y="game_state.wave2" :hasHistory="true"></WaveCard>
       </div>
     </div>
-    <div class="md-layout md-elevation-2">
+    <div class="md-layout">
       <wave-guidance class="md-layout-item md-alignment-top-left" title="Wave 1" v-model="guidance_selected"></wave-guidance>
       <wave-guidance class="md-layout-item md-alignment-top-right" title="Wave 2" v-model="guidance_selected"></wave-guidance>
 
