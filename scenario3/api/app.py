@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, render_template, abort, session
 import requests
 import json
 import configparser
+import numpy as np
 
 import os
 import sys
@@ -179,10 +180,28 @@ def provide_feedback(user_id=''):
     #logging.info('Test')
     #print(guidance_action.keys())
    # print(guidance_action, type(guidance_action))
-    encoded_guidance = encode_action(guidance_action)
-    action = qLearning.chose_action(encoded_guidance)
+    if not guidance_action:
+        print('dict empty')
+        action = qLearning.chose_action()
+    else:
+        encoded_guidance = encode_action(guidance_action)
+        action = qLearning.chose_action(encoded_guidance)
+        
+    #state=np.array(session['task_data']['wave1']['amplitude'], session['task_data']['wave1']['amplitude']
+                   # session['task_data']['wave1']['amplitude'], session['task_data']['wave1']['amplitude'] )    
+    state = np.zeros(4)
+    state[0] = session['task_data']['wave1']['amplitude']
+    state[1] = session['task_data']['wave1']['frequency']
+    state[2] = session['task_data']['wave2']['amplitude']
+    state[3] = session['task_data']['wave2']['frequency']        
+        
     next_state, reward, done, _ = env.step(action)
-    print(next_state)
+    reward = feedback_value
+    qLearning.update_Q_function(state, next_state, action, reward)
+
+
+    #print(state)
+    #print(next_state)
     response = {
         'wave1': {
             'amplitude': next_state[0],
