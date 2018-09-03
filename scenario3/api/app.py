@@ -28,7 +28,9 @@ sys.path.append(file_dir)
 #print(os.path.dirname(full_path))
 
 from QLearning import QLearning
+from StaticActionTaking import StaticActionTaking
 from DiscreteWavesGridWorld import DiscreteWavesGridWorld
+
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -37,8 +39,8 @@ config.read('config.ini')
 
 app = Flask(__name__)
 env = DiscreteWavesGridWorld()
-qLearning = QLearning(env)
-
+#qLearning = QLearning(env)
+qLearning = StaticActionTaking(env)
 
 def encode_action(dict_guidance_action):
     action = 0

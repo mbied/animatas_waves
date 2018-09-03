@@ -164,6 +164,30 @@ class DiscreteWavesGridWorld(Env):
         state_delta[changed_param] = change_value
         #print("State delta is: %s", state_delta)
         return state_delta
+    
+    def decode_state_delta(self,state_delta):
+        #print('state delta')
+        #print(state_delta)
+        pos = 0
+        for i in range(4):
+            if state_delta[i] != 0:
+                pos = i
+        action = 0
+        try:
+            if pos > 1:
+                action += 4
+            
+            if (pos % 2) == 1:
+                action += 2
+
+            if state_delta[pos] == -1:
+                action += 1
+        except Warning:
+            print('0- state_delta')
+
+        return action
+            
+            
         
 
     def _calc_next_state(self, state, action):
@@ -195,3 +219,5 @@ if __name__ == "__main__":
     print(observation, reward)
     observation, reward, done, _ = a.step(2)
     print(observation, reward)
+    state_delta = np.array([0, 0, 0, -1])
+    print(a.decode_state_delta(state_delta))
