@@ -6,13 +6,20 @@ import copy
 
 class StaticActionTaking:
     
-    def __init__(self, env, alpha=.95, gamma=.7, epsilon=0, state_action_dimensions = [10,10,10,10,8]):
+    def __init__(self, env, alpha=.95, gamma=.7, epsilon=0, state_action_dimensions = np.array([10,10,10,10,8])):
         # the parameters are not used, they are only added for compatibility with QLearning
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
         self.Q = np.zeros(state_action_dimensions) 
         self.env = env
+        self.givenFeedback = np.full(np.prod(state_action_dimensions), np.nan)
+        self.state_action_dimensions = state_action_dimensions
+        #print(state_action_dimensions)
+        #print(state_action_dimensions.size)
+        #self.givenFeedback = np.full(8000, np.nan)
+        #np.reshape(self.givenFeedback, 8000)
+        print(self.givenFeedback)
         print("StaticActionTaking initiated.")
         
     #def encode_action(state_delta):
@@ -34,6 +41,17 @@ class StaticActionTaking:
         #print(dict_guidance_action[wave])
         
     #    return action
+    
+    def _getIndex(self, state, action):
+        multi_index = np.full((state.size+1,1), 1)
+        for index, value in np.ndenumerate(state):
+            multi_index[index][0] = value
+        multi_index[-1][0] = action
+        print(multi_index)
+        #return 934
+        ret_val = np.ravel_multi_index(multi_index, self.state_action_dimensions)
+        print(ret_val)
+        return ret_val
         
     def load_Q_table(self,file_path):
         obj_text = codecs.open(file_path, 'r', encoding='utf-8').read()
@@ -63,9 +81,25 @@ class StaticActionTaking:
                         sub_state_delta[i] = -1
                     action = self.env.decode_state_delta(sub_state_delta)
                     action_list = np.append(action_list, action)
-                action_list = np.delete(action_list, 0)    
+   
+                action_list_backup = action_list
+                remove_indices = np.array(0)
+                
+                for index, action in enumerate(action_list):
+                    if self.givenFeedback[self._getIndex(self.env.state, action)] == -1:
+                        remove_indices = np.append(remove_indices, action)
+                        
+                if len(action_list) > len(remove_indices):
+                    action_list = np.delete(action_list, remove_indices)
+                else:
+                    action_list = np.delete(action_list, 0) 
+                    
                 print('action_list')
                 print(action_list)
+                    
+                    
+                    
+                    
                 action = action_list[randint(0, len(action_list)-1)]
                 
         else:
@@ -77,7 +111,8 @@ class StaticActionTaking:
         return action
         
     def update_Q_function(self,state, next_state, action, reward):
-        pass
+        index = self._getIndex(state, action)
+        self.givenFeedback[index] = reward
 
 
 if __name__ == "__main__":
